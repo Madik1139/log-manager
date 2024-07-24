@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Plus, Edit, Trash2, X } from "lucide-react";
+import React, { useState } from "react";
+import { Search, Plus, Edit, Trash2, X, ChevronLeft } from "lucide-react";
 import { Equipment, Role } from "../types";
 import { useAuth } from "../AuthContext";
 import EquipmentLogPage from "./EquipmentsLogs";
@@ -15,6 +15,7 @@ const EquipmentManagementPage = () => {
     const [showLogs, setShowLogs] = useState(false);
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
+    const [showMobileDetails, setShowMobileDetails] = useState(false);
 
     const filteredEquipment = equipment.filter(
         (item) =>
@@ -67,15 +68,23 @@ const EquipmentManagementPage = () => {
         setShowLogs(true);
     };
 
+    const handleMobileSelect = (item: Equipment) => {
+        setSelectedEquipment(item);
+        setIsEditing(false);
+        setShowMobileDetails(true);
+    };
+
     return (
-        <div className="bg-gray-100 min-h-screen">
-            <h1 className="text-3xl font-bold mb-6">Equipment Management</h1>
+        <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">
+                Equipment Management
+            </h1>
 
             {isAdmin && (
                 <div className="mb-6 font-semibold">
                     <button
                         onClick={handleShowManagement}
-                        className={`w-32 py-2 rounded-l-full ${
+                        className={`w-1/2 md:w-32 py-2 rounded-l-full ${
                             showLogs
                                 ? "bg-gray-200 hover:bg-gray-300"
                                 : "bg-blue-500 text-white"
@@ -85,7 +94,7 @@ const EquipmentManagementPage = () => {
                     </button>
                     <button
                         onClick={handleShowLogs}
-                        className={`w-32 py-2 rounded-r-full ${
+                        className={`w-1/2 md:w-32 py-2 rounded-r-full ${
                             showLogs
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-200 hover:bg-gray-300"
@@ -98,8 +107,8 @@ const EquipmentManagementPage = () => {
 
             {!showLogs ? (
                 <>
-                    <div className="flex mb-4">
-                        <div className="flex-1 relative">
+                    <div className="flex flex-col md:flex-row mb-4">
+                        <div className="flex-1 relative mb-2 md:mb-0 md:mr-2">
                             <input
                                 type="text"
                                 placeholder="Search equipment..."
@@ -115,14 +124,14 @@ const EquipmentManagementPage = () => {
 
                         <button
                             onClick={handleAddNew}
-                            className="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center"
                         >
                             <Plus size={20} className="mr-2" /> Add New
                         </button>
                     </div>
 
-                    <div className="flex">
-                        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md mr-4 h-[calc(100vh-200px)] overflow-y-auto">
+                    <div className="flex flex-col md:flex-row">
+                        <div className="w-full md:w-1/3 bg-white p-4 rounded-lg shadow-md md:mr-4 mb-4 md:mb-0 h-[calc(100vh-300px)] md:h-[calc(100vh-200px)] overflow-y-auto hidden md:block">
                             <h2 className="text-xl font-semibold mb-4">
                                 Equipment List
                             </h2>
@@ -158,7 +167,17 @@ const EquipmentManagementPage = () => {
                             ))}
                         </div>
 
-                        <div className="flex-1 bg-white p-4 rounded-lg shadow-md h-[calc(100vh-200px)] overflow-y-auto">
+                        <MobileEquipmentList
+                            equipment={filteredEquipment}
+                            selectedId={selectedEquipment?.id}
+                            onSelect={handleMobileSelect}
+                        />
+
+                        <div
+                            className={`flex-1 bg-white p-4 rounded-lg shadow-md h-[calc(100vh-300px)] md:h-[calc(100vh-200px)] overflow-y-auto ${
+                                showMobileDetails ? "block" : "hidden md:block"
+                            }`}
+                        >
                             {selectedEquipment ? (
                                 <div>
                                     <div className="flex justify-between items-center mb-4">
@@ -167,27 +186,36 @@ const EquipmentManagementPage = () => {
                                                 ? "Edit Equipment"
                                                 : "Equipment Details"}
                                         </h2>
-
-                                        {!isEditing && (
-                                            <div>
-                                                <button
-                                                    onClick={handleEdit}
-                                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
-                                                >
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            selectedEquipment.id
-                                                        )
-                                                    }
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        )}
+                                        <div className="flex items-center">
+                                            <button
+                                                onClick={() =>
+                                                    setShowMobileDetails(false)
+                                                }
+                                                className="md:hidden mr-2 text-gray-500"
+                                            >
+                                                <ChevronLeft size={24} />
+                                            </button>
+                                            {!isEditing && (
+                                                <div>
+                                                    <button
+                                                        onClick={handleEdit}
+                                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mr-2"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                selectedEquipment.id
+                                                            )
+                                                        }
+                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     {isEditing ? (
                                         <EquipmentForm
@@ -240,7 +268,7 @@ const EquipmentDetails = ({ equipment }: any) => (
         <p>
             <strong>Last Maintenance:</strong> {equipment.lastMaintenance}
         </p>
-        <div className="md:w-3/4 mb-4 md:mb-0 md:mr-4 mt-4">
+        <div className="w-full md:w-3/4 mt-4">
             <img
                 src={`https://placehold.co/300x200/EEEEFF/003366?text=Pictures of ${encodeURIComponent(
                     equipment.name
@@ -382,7 +410,7 @@ const AddEquipmentModal = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg w-96">
+            <div className="bg-white p-6 rounded-lg w-full max-w-md">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Add New Equipment</h2>
                     <button
@@ -475,5 +503,34 @@ const AddEquipmentModal = ({
         </div>
     );
 };
+
+// New component for mobile view
+const MobileEquipmentList = ({ equipment, selectedId, onSelect }: any) => (
+    <div className="md:hidden bg-white p-2 mb-5 rounded">
+        {equipment.map((item: any) => (
+            <div
+                key={item.id}
+                className={`p-2 mb-2 rounded cursor-pointer bg-gray-100 ${
+                    selectedId === item.id ? "bg-gray-300" : "hover:bg-gray-200"
+                }`}
+                onClick={() => onSelect(item)}
+            >
+                <h3 className="font-semibold">{item.name}</h3>
+                <p className="text-sm text-gray-600">{item.type}</p>
+                <p
+                    className={`text-sm font-semibold ${
+                        item.status === "Normal"
+                            ? "text-green-600"
+                            : item.status === "Need Maintenance"
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                    }`}
+                >
+                    {item.status}
+                </p>
+            </div>
+        ))}
+    </div>
+);
 
 export default EquipmentManagementPage;

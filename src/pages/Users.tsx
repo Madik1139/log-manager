@@ -7,8 +7,8 @@ const Modal = ({ isOpen, title, children }: any) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg w-96">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+            <div className="bg-white p-4 rounded-lg w-full max-w-md">
                 <h2 className="text-xl font-bold mb-4">{title}</h2>
                 {children}
             </div>
@@ -70,18 +70,18 @@ const UsersManagementPage = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">User Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">User Management</h1>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center">
+            <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
+                    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                         <div className="relative">
                             <input
                                 type="text"
                                 placeholder="Search users..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="border p-2 pl-8 rounded"
+                                className="border p-2 pl-8 rounded w-full"
                             />
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                         </div>
@@ -90,7 +90,7 @@ const UsersManagementPage = () => {
                             onChange={(e) =>
                                 setRoleFilter(e.target.value as Role | "all")
                             }
-                            className="border p-2 rounded ml-2"
+                            className="border p-2 rounded w-full md:w-auto"
                         >
                             <option value="all">All Roles</option>
                             <option value="operator">Operator</option>
@@ -100,45 +100,49 @@ const UsersManagementPage = () => {
                     </div>
                     <button
                         onClick={() => setIsAddModalOpen(true)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
+                        className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center w-full md:w-auto"
                     >
                         <UserPlus className="mr-2 h-4 w-4" /> Add User
                     </button>
                 </div>
 
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border p-2 text-left">Name</th>
-                            <th className="border p-2 text-left">Email</th>
-                            <th className="border p-2 text-left">Role</th>
-                            <th className="border p-2 text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user.id}>
-                                <td className="border p-2">{user.name}</td>
-                                <td className="border p-2">{user.email}</td>
-                                <td className="border p-2">{user.role}</td>
-                                <td className="border p-2">
-                                    <button
-                                        onClick={() => handleEdit(user)}
-                                        className="bg-yellow-500 text-white p-1 rounded mr-2"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        className="bg-red-500 text-white p-1 rounded"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="bg-gray-100">
+                                <th className="border p-2 text-left">Name</th>
+                                <th className="border p-2 text-left">Email</th>
+                                <th className="border p-2 text-left">Role</th>
+                                <th className="border p-2 text-left">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredUsers.map((user) => (
+                                <tr key={user.id}>
+                                    <td className="border p-2">{user.name}</td>
+                                    <td className="border p-2">{user.email}</td>
+                                    <td className="border p-2">{user.role}</td>
+                                    <td className="border p-2">
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => handleEdit(user)}
+                                                className="bg-yellow-500 text-white p-1 rounded"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(user.id)}
+                                                className="bg-red-500 text-white p-1 rounded"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <Modal isOpen={isAddModalOpen} title="Add New User">

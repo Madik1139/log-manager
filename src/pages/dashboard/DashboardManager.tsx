@@ -62,7 +62,7 @@ const DashboardManager = () => {
     return (
         <div>
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <nav className="flex space-x-4 mb-6">
+                <nav className="flex flex-wrap gap-3">
                     <TabButton
                         active={activeTab === "overview"}
                         onClick={() => setActiveTab("overview")}
@@ -82,6 +82,7 @@ const DashboardManager = () => {
                         Maintenance
                     </TabButton>
                 </nav>
+                <hr className="border-gray-300 my-5" />
                 {renderContent()}
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -113,7 +114,7 @@ const DashboardManager = () => {
 };
 
 const StatCard = ({ title, value, icon }: any) => (
-    <div className="bg-white rounded-lg shadow p-6 flex items-center">
+    <div className="bg-white rounded-lg shadow border p-6 flex items-center">
         <div className="mr-4">{icon}</div>
         <div>
             <h3 className="text-lg font-semibold">{title}</h3>

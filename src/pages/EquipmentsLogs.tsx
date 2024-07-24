@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Search, Filter, Download } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { Role } from "../types";
 import { dummyEquipments } from "../data/data";
@@ -10,8 +9,6 @@ const EquipmentLogPage = () => {
     const [filterDate, setFilterDate] = useState("");
     const [logData, setLogData] = useState(dummyEquipments);
     const { role } = useAuth();
-    const navigate = useNavigate();
-    const isAdmin = role === Role.Admin;
     const isOperator = role === Role.Operator;
 
     const filteredLogs = logData.filter(
@@ -40,36 +37,13 @@ const EquipmentLogPage = () => {
 
     return (
         <div>
-            {!isAdmin && (
-                <>
-                    <h1 className="text-3xl font-bold mb-6 text-gray-800">
-                        Equipments Logs
-                    </h1>
-
-                    {!isOperator && (
-                        <div className="mb-6">
-                            <button
-                                onClick={() =>
-                                    navigate("/equipments-management")
-                                }
-                                className="bg-blue-500 text-white px-4 py-2 rounded mr-4 hover:bg-blue-600"
-                            >
-                                Management
-                            </button>
-                            <button
-                                onClick={() => navigate("/equipments-logs")}
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            >
-                                Logs
-                            </button>
-                        </div>
-                    )}
-                </>
-            )}
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800">
+                Equipments Logs
+            </h1>
 
             <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex flex-wrap items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+                    <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                         <div className="relative">
                             <input
                                 type="text"

@@ -49,7 +49,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
             )}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {isLoggedIn && (
-                    <div className="bg-white shadow-md pl-4 py-2 md:hidden">
+                    <div className="bg-white shadow-md pl-4 py-2 md:hidden z-30">
                         <button
                             onClick={toggleSidebar}
                             className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"

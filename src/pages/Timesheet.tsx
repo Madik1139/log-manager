@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { TimesheetEntry } from "../types";
 import { dummyTimesheet } from "../data/data";
 
@@ -43,13 +43,15 @@ const TimesheetPage = () => {
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Timesheet</h2>
-            <div className="flex justify-between items-end mb-3">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                Timesheet
+            </h2>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-3 space-y-2 md:space-y-0">
                 <div>
                     <select
                         value={selectedEquipment}
                         onChange={(e) => setSelectedEquipment(e.target.value)}
-                        className="p-2 border rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="p-2 border rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto"
                     >
                         {equipmentOptions.map((option) => (
                             <option key={option} value={option}>
@@ -58,7 +60,7 @@ const TimesheetPage = () => {
                         ))}
                     </select>
                 </div>
-                <p className="text-xl font-bold text-gray-600">
+                <p className="text-lg md:text-xl font-bold text-gray-600">
                     {new Date()
                         .toLocaleDateString("id-ID", {
                             day: "2-digit",
@@ -68,8 +70,8 @@ const TimesheetPage = () => {
                         .replace(/\//g, "-")}
                 </p>
             </div>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="w-full border-collapse">
+            <div className="bg-white rounded-lg shadow overflow-x-auto">
+                <table className="w-full border-collapse min-w-max">
                     <thead>
                         <tr className="bg-gray-800 text-white">
                             <th className="border p-2 rounded-tl-lg">
@@ -125,14 +127,14 @@ const TimesheetPage = () => {
             <div className="mt-4">
                 <button
                     onClick={() => setIsDialogOpen(true)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-full md:w-auto"
                 >
                     Add Entry
                 </button>
             </div>
             {isDialogOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-96">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-md">
                         <h3 className="text-lg font-semibold mb-4">
                             Add New Timesheet Entry
                         </h3>

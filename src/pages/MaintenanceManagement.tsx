@@ -56,13 +56,8 @@ const MaintenanceManagementPage: React.FC = () => {
         }
     };
 
-    const handleShowManagement = (): void => {
-        setShowLogs(false);
-    };
-
-    const handleShowLogs = (): void => {
-        setShowLogs(true);
-    };
+    const handleShowManagement = (): void => setShowLogs(false);
+    const handleShowLogs = (): void => setShowLogs(true);
 
     const handleAddRequest = (): void => {
         setModalType("add");
@@ -118,7 +113,7 @@ const MaintenanceManagementPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
                 Maintenance Requests
             </h1>
 
@@ -126,7 +121,7 @@ const MaintenanceManagementPage: React.FC = () => {
                 <div className="mb-6 font-semibold">
                     <button
                         onClick={handleShowManagement}
-                        className={`w-32 py-2 rounded-l-full ${
+                        className={`w-1/2 md:w-32 py-2 rounded-l-full ${
                             showLogs
                                 ? "bg-gray-300 hover:bg-blue-100"
                                 : "bg-blue-500 text-white"
@@ -136,7 +131,7 @@ const MaintenanceManagementPage: React.FC = () => {
                     </button>
                     <button
                         onClick={handleShowLogs}
-                        className={`w-32 py-2 rounded-r-full ${
+                        className={`w-1/2 md:w-32 py-2 rounded-r-full ${
                             showLogs
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-300 hover:bg-blue-100"
@@ -148,14 +143,14 @@ const MaintenanceManagementPage: React.FC = () => {
             )}
 
             {!showLogs ? (
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex flex-col md:flex-row md:justify-between justify-between mb-6">
-                        <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                            <div className="relative">
+                <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 space-y-4 md:space-y-0">
+                        <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                            <div className="relative w-full md:w-auto">
                                 <input
                                     type="text"
                                     placeholder="Search machine..."
-                                    className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full md:w-64 pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     value={searchTerm}
                                     onChange={(e) =>
                                         setSearchTerm(e.target.value)
@@ -163,9 +158,9 @@ const MaintenanceManagementPage: React.FC = () => {
                                 />
                                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>
-                            <div className="relative">
+                            <div className="relative w-full md:w-auto">
                                 <select
-                                    className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full md:w-48 pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     value={filterStatus}
                                     onChange={(e) =>
                                         setFilterStatus(e.target.value)
@@ -183,7 +178,7 @@ const MaintenanceManagementPage: React.FC = () => {
                             </div>
                         </div>
                         <button
-                            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+                            className="w-full md:w-auto flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
                             onClick={handleAddRequest}
                         >
                             <PlusCircle className="h-5 w-5 mr-2" />
@@ -193,8 +188,8 @@ const MaintenanceManagementPage: React.FC = () => {
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-gray-100">
+                            <thead className="bg-gray-100">
+                                <tr>
                                     <th className="p-3 border-b font-semibold text-gray-600">
                                         Date
                                     </th>
@@ -341,7 +336,7 @@ const MaintenanceRequestModal: React.FC<MaintenanceRequestModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center z-50">
-            <div className="bg-white p-5 rounded-lg shadow-xl w-full max-w-md">
+            <div className="bg-white p-5 rounded-lg shadow-xl w-full max-w-md mx-4">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">
                         {type === "add"

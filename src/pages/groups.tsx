@@ -60,10 +60,10 @@ const GroupsPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6">Groups Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">Groups Management</h1>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row justify-between mb-4">
                     <div className="relative">
                         <input
                             type="text"
@@ -79,7 +79,7 @@ const GroupsPage: React.FC = () => {
                     </div>
                     <button
                         onClick={() => openModal()}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center mt-4"
                     >
                         <Plus size={20} className="mr-2" />
                         Add New Vendor

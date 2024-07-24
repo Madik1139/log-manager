@@ -92,16 +92,16 @@ const LogsPage = () => {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Activity Log</h1>
-                <div className="flex space-x-2">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+                <h1 className="text-2xl md:text-3xl font-bold">Activity Log</h1>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <input
                         type="date"
                         value={startDate}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setStartDate(e.target.value)
                         }
-                        className="border rounded px-2 py-1"
+                        className="border rounded px-2 py-1 w-full sm:w-auto"
                     />
                     <input
                         type="date"
@@ -109,18 +109,18 @@ const LogsPage = () => {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setEndDate(e.target.value)
                         }
-                        className="border rounded px-2 py-1"
+                        className="border rounded px-2 py-1 w-full sm:w-auto"
                     />
                     <button
                         onClick={handleApplyDateRange}
-                        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 w-full sm:w-auto"
                     >
                         Apply
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {metrics.map((metric, index) => (
                     <div key={index} className="bg-white p-4 rounded-lg shadow">
                         <h2 className="text-sm font-medium text-gray-500">
@@ -170,16 +170,16 @@ const LogsPage = () => {
             </div>
 
             <div className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
                     <h2 className="text-lg font-semibold">
                         Recent Activity Log
                     </h2>
-                    <div className="flex space-x-2">
-                        <div className="relative">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                        <div className="relative w-full sm:w-auto">
                             <input
                                 type="text"
                                 placeholder="Search..."
-                                className="border rounded px-2 py-1 pl-8"
+                                className="border rounded px-2 py-1 pl-8 w-full"
                                 value={searchTerm}
                                 onChange={(
                                     e: React.ChangeEvent<HTMLInputElement>
@@ -190,48 +190,50 @@ const LogsPage = () => {
                             />
                             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         </div>
-                        <button className="flex items-center border rounded px-3 py-1 text-white bg-blue-500 hover:bg-blue-600">
+                        <button className="flex items-center justify-center border rounded px-3 py-1 text-white bg-blue-500 hover:bg-blue-600 w-full sm:w-auto">
                             <Download className="h-4 w-4 mr-2" />
                             Export
                         </button>
                     </div>
                 </div>
-                <table className="min-w-full">
-                    <thead>
-                        <tr className="bg-gray-50">
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Timestamp
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                User
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Action
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Details
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {currentLogs.map((log) => (
-                            <tr key={log.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {log.timestamp}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {log.user}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {log.activity}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {log.details}
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead>
+                            <tr className="bg-gray-50">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Timestamp
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    User
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Action
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Details
+                                </th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentLogs.map((log) => (
+                                <tr key={log.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {log.timestamp}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {log.user}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {log.activity}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {log.details}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
                 <div className="mt-4 flex justify-between items-center">
                     <button
                         onClick={() => paginate(currentPage - 1)}

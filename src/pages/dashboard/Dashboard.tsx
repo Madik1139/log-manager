@@ -16,9 +16,6 @@ import { useAuth } from "../../AuthContext";
 import DashboardManager from "./DashboardManager";
 
 const Dashboard = ({ userRole = curentRole }) => {
-    // const token = localStorage.getItem("token");
-    // const userString = localStorage.getItem("user");
-    // const user = userString ? JSON.parse(userString) : null;
     const [systemStatus, setSystemStatus] = useState("healthy");
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
@@ -29,38 +26,7 @@ const Dashboard = ({ userRole = curentRole }) => {
 
     return (
         <div>
-            {/* <h2 className="text-3xl font-bold mb-6">Dashboard</h2>
-            <p className="mb-8 text-gray-600">
-                Welcome to the dashboard. Here you can see an overview of your
-                logs, alerts, and user information.
-            </p>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4">
-                    Token Information
-                </h3>
-                <div>
-                    <p className="mb-2">
-                        <strong>Token:</strong>
-                    </p>
-                    <pre className="bg-gray-100 p-2 rounded overflow-x-auto">
-                        {token}
-                    </pre>
-                    {user && (
-                        <div className="mt-4">
-                            <p>
-                                <strong>Decoded Token:</strong>
-                            </p>
-                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto">
-                                {JSON.stringify(user, null, 2)}
-                            </pre>
-                        </div>
-                    )}
-                </div>
-            </div> */}
-
             <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-
             {isAdmin ? (
                 <>
                     {/* System Status */}
