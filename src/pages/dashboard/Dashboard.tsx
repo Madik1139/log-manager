@@ -7,7 +7,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { curentRole, Role } from "../../types";
 import { chartData, features, metrics } from "../../data/data";
@@ -16,12 +16,16 @@ import { useAuth } from "../../AuthContext";
 import DashboardManager from "./DashboardManager";
 
 const Dashboard = ({ userRole = curentRole }) => {
-    const token = localStorage.getItem("token");
-    const userString = localStorage.getItem("user");
-    const user = userString ? JSON.parse(userString) : null;
+    // const token = localStorage.getItem("token");
+    // const userString = localStorage.getItem("user");
+    // const user = userString ? JSON.parse(userString) : null;
     const [systemStatus, setSystemStatus] = useState("healthy");
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
+
+    useEffect(() => {
+        setSystemStatus("healthy");
+    }, []);
 
     return (
         <div>

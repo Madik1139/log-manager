@@ -60,10 +60,7 @@ const RoleManagementPage = () => {
     const [roles, setRoles] = useState<UserRole[]>([]);
     const [editingRole, setEditingRole] = useState<UserRole | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [alert, setAlert] = useState<{
-        type: "success" | "error";
-        message: string;
-    } | null>(null);
+    // const [alert, setAlert] = useState<{ type: "success" | "error"; message: string;} | null>(null);
 
     useEffect(() => {
         const initialRoles: UserRole[] = [
@@ -83,16 +80,16 @@ const RoleManagementPage = () => {
                         r.name === editingRole.name ? editingRole : r
                     )
                 );
-                setAlert({
-                    type: "success",
-                    message: "Role updated successfully!",
-                });
+                // setAlert({
+                //     type: "success",
+                //     message: "Role updated successfully!",
+                // });
             } else {
                 setRoles([...roles, editingRole]);
-                setAlert({
-                    type: "success",
-                    message: "New role added successfully!",
-                });
+                // setAlert({
+                //     type: "success",
+                //     message: "New role added successfully!",
+                // });
             }
         }
         setEditingRole(null);
@@ -101,7 +98,7 @@ const RoleManagementPage = () => {
 
     const handleDelete = (roleName: string) => {
         setRoles(roles.filter((r) => r.name !== roleName));
-        setAlert({ type: "success", message: "Role deleted successfully!" });
+        // setAlert({ type: "success", message: "Role deleted successfully!" });
     };
 
     const handleEdit = (role: UserRole) => {

@@ -148,7 +148,7 @@ const ReportsAnalyticsPage = () => {
                                     `${name} ${(percent * 100).toFixed(0)}%`
                                 }
                             >
-                                {statusDistributionData.map((entry, index) => (
+                                {statusDistributionData.map((_, index) => (
                                     <Cell
                                         key={`cell-${index}`}
                                         fill={COLORS[index % COLORS.length]}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Filter, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
@@ -19,6 +19,11 @@ const EquipmentLogPage = () => {
             log.machine.toLowerCase().includes(searchTerm.toLowerCase()) &&
             log.date.includes(filterDate)
     );
+
+    useEffect(() => {
+        // Fetch data from the server or API
+        setLogData(dummyEquipments);
+    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
