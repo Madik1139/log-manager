@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { TimesheetEntry } from "../types";
-import { dummyTimesheet } from "../data/data";
+import React, { useEffect, useState } from "react";
+import { ITimesheet } from "../types";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const TimesheetPage = () => {
     const [selectedEquipment, setSelectedEquipment] = useState("Excavator");
-    const [data, setData] = useState<TimesheetEntry[]>(dummyTimesheet);
-    const [newEntry, setNewEntry] = useState<TimesheetEntry>({
+    const [newEntry, setNewEntry] = useState<ITimesheet>({
         activity: "",
         timeMachineStart: 0,
         timeMachineEnd: 0,
@@ -17,6 +17,8 @@ const TimesheetPage = () => {
         quality: "",
     });
 
+    const data = useLiveQuery(() => db.timesheet.toArray(), []) || [];
+
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const equipmentOptions = ["Excavator", "Bulldozer", "Crane", "Loader"];
 
@@ -25,21 +27,46 @@ const TimesheetPage = () => {
         setNewEntry((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleAddEntry = () => {
-        setData((prev) => [...prev, newEntry]);
-        setNewEntry({
-            activity: "",
-            timeMachineStart: 0,
-            timeMachineEnd: 0,
-            timeOperatorStart: "",
-            timeOperatorEnd: "",
-            hours: "",
-            production: 0,
-            speed: 0,
-            quality: "",
-        });
-        setIsDialogOpen(false);
+    const handleAddEntry = async () => {
+        try {
+            const id = await db.timesheet.add(newEntry);
+            console.log("Timesheet added successfully with ID:", id);
+            setNewEntry({
+                activity: "",
+                timeMachineStart: 0,
+                timeMachineEnd: 0,
+                timeOperatorStart: "",
+                timeOperatorEnd: "",
+                hours: "",
+                production: 0,
+                speed: 0,
+                quality: "",
+            });
+            setIsDialogOpen(false);
+        } catch (error) {
+            console.error("Failed to add timesheet:", error);
+        }
     };
+
+    useEffect(() => {
+        const initDB = async () => {
+            const count = await db.timesheet.count();
+            if (count === 0) {
+                await db.timesheet.add({
+                    activity: "Work",
+                    timeMachineStart: 105,
+                    timeMachineEnd: 107,
+                    timeOperatorStart: "16:00",
+                    timeOperatorEnd: "16:00",
+                    hours: "00:08",
+                    production: 613,
+                    speed: 0,
+                    quality: "--",
+                });
+            }
+        };
+        initDB();
+    }, []);
 
     return (
         <div>

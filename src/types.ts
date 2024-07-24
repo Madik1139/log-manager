@@ -1,4 +1,4 @@
-export interface Log {
+export interface ILog {
     id: number;
     user: string;
     activity: string;
@@ -6,31 +6,26 @@ export interface Log {
     timestamp: string;
 }
 
-export interface Alert {
-    id: number;
-    title: string;
-    status: string;
-    severity: string;
-}
-
-export interface User {
-    id: number;
+export interface IUser {
+    id?: number;
     name: string;
     email: string;
     role: Role;
+    picture?: string;
 }
 
-export interface Equipment {
-    id: number;
+export interface IEquipment {
+    id?: number;
     name: string;
     type: string;
     status: string;
     operator: string;
     lastMaintenance: string;
+    duration: string;
 }
 
-export interface MaintenanceRequest {
-    id: number;
+export interface IMaintenance {
+    id?: number;
     date: string;
     machine: string;
     issue: string;
@@ -39,7 +34,7 @@ export interface MaintenanceRequest {
     status: "Pending" | "Approved" | "In Progress" | "Completed";
 }
 
-export interface TimesheetEntry {
+export interface ITimesheet {
     activity: string;
     timeMachineStart: number;
     timeMachineEnd: number;
@@ -51,10 +46,24 @@ export interface TimesheetEntry {
     quality: string;
 }
 
+export interface Irole {
+    id?: number;
+    name: string;
+    permissions: string[];
+}
+
+export interface Ivendor {
+    id?: number;
+    name: string;
+    category: string;
+    status: "Active" | "Inactive";
+}
+
 export enum Role {
     Admin = "admin",
     Manager = "manager",
     Operator = "operator",
+    Device = "device",
 }
 
 export const curentRole = Role.Operator;

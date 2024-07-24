@@ -15,7 +15,7 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
-import { MaintenanceRequest, Role, TimesheetEntry } from "../types";
+import { IMaintenance, ITimesheet, Role } from "../types";
 
 export const menuItems = {
     admin: [
@@ -128,6 +128,12 @@ export const menuItems = {
         },
         { id: "profile", icon: User, label: "My Profile", path: "/profile" },
     ],
+    device: [{
+        id: "dashboard",
+        icon: LayoutDashboard,
+        label: "Dashboard",
+        path: "/",
+    }],
 };
 
 export const metrics = {
@@ -321,7 +327,7 @@ export const allPermissions = [
     "Add Maintenance",
     "Access Equipment",
     "View Personal Profile",
-    "Request Maintenance",
+    "Add/Request Maintenance",
 ]
 
 export const adminPermissions = [
@@ -422,7 +428,7 @@ export const initialEquipment = [
     },
 ];
 
-export const dummyMaintenance: MaintenanceRequest[] = [
+export const dummyMaintenance: IMaintenance[] = [
     {
         id: 1,
         date: "2024-07-18",
@@ -470,7 +476,7 @@ export const dummyMaintenance: MaintenanceRequest[] = [
     },
 ];
 
-export const dummyTimesheet: TimesheetEntry[] = [
+export const dummyTimesheet: ITimesheet[] = [
     {
         activity: "Maintenance Unit",
         timeMachineStart: 101,

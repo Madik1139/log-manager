@@ -1,26 +1,23 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Search, Filter, Download } from "lucide-react";
 import { useAuth } from "../AuthContext";
 import { Role } from "../types";
-import { dummyEquipments } from "../data/data";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const EquipmentLogPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterDate, setFilterDate] = useState("");
-    const [logData, setLogData] = useState(dummyEquipments);
     const { role } = useAuth();
     const isOperator = role === Role.Operator;
 
+    const logData = useLiveQuery(() => db.equipments.toArray(), []) || [];
+
     const filteredLogs = logData.filter(
         (log) =>
-            log.machine.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            log.date.includes(filterDate)
+            log.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            log.lastMaintenance.includes(filterDate)
     );
-
-    useEffect(() => {
-        // Fetch data from the server or API
-        setLogData(dummyEquipments);
-    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -96,9 +93,9 @@ const EquipmentLogPage = () => {
                         <tbody>
                             {filteredLogs.map((log) => (
                                 <tr key={log.id} className="hover:bg-gray-50">
-                                    <td className="p-3 border-b">{log.date}</td>
+                                    <td className="p-3 border-b">{log.lastMaintenance}</td>
                                     <td className="p-3 border-b">
-                                        {log.machine}
+                                        {log.name}
                                     </td>
                                     <td className="p-3 border-b">
                                         {log.duration}

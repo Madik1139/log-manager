@@ -1,19 +1,13 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { Role } from "./types";
+import { IUser, Role } from "./types";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-
-interface User {
-    email: string;
-    name: string;
-    picture: string;
-}
 
 interface AuthContextType {
     isLoggedIn: boolean;
     isLoading: boolean;
     role: Role | null;
-    user: User | null;
+    user: IUser | null;
     loginUsernamePassword: (email: string, password: string) => Promise<void>;
     loginWithGoogle: (token: string) => void;
     logout: () => void;
@@ -37,7 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [role, setRole] = useState<Role | null>(null);
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<IUser | null>(null);
     const navigate = useNavigate();
 
     const checkAuth = () => {
@@ -48,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (isAuth && userStr) {
             const userData = JSON.parse(userStr);
             setUser(userData);
-            setRole(roleStr as Role || Role.Operator);
+            setRole(roleStr as Role || Role.Admin);
         } else {
             setUser(null);
             setRole(null);
@@ -73,11 +67,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const decoded: any = jwtDecode(token);
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(decoded));
-        localStorage.setItem("role", Role.Operator); // Set default role
+        localStorage.setItem("role", Role.Admin); // Set default role
         setUser(decoded);
         setIsLoggedIn(true);
-        setRole(Role.Operator);
-        navigate("/", { replace: true });
+        setRole(Role.Admin);
+        navigate("/users", { replace: true });
     };
 
     const logout = () => {

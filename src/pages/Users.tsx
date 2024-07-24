@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { UserPlus, Edit, Trash2, Search } from "lucide-react";
-import { Role, User } from "../types";
-import { dummyUsers } from "../data/data";
+import { Role, IUser } from "../types";
+import db from "../models/DexieDB";
+import { useLiveQuery } from "dexie-react-hooks";
 
 const Modal = ({ isOpen, title, children }: any) => {
     if (!isOpen) return null;
@@ -17,10 +18,8 @@ const Modal = ({ isOpen, title, children }: any) => {
 };
 
 const UsersManagementPage = () => {
-    const [users, setUsers] = useState<User[]>(dummyUsers);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [newUser, setNewUser] = useState<User>({
-        id: 0,
+    const [editingUser, setEditingUser] = useState<IUser | null>(null);
+    const [newUser, setNewUser] = useState<IUser>({
         name: "",
         email: "",
         role: "operator" as Role,
@@ -30,35 +29,60 @@ const UsersManagementPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<Role | "all">("all");
 
-    const handleEdit = (user: User): void => {
+    const users = useLiveQuery(() => db.users.toArray(), []);
+
+    const handleEdit = useCallback((user: IUser) => {
         setEditingUser({ ...user });
         setIsEditModalOpen(true);
-    };
+    }, []);
 
-    const handleSave = (): void => {
-        if (editingUser) {
-            setUsers(
-                users.map((user) =>
-                    user.id === editingUser.id ? editingUser : user
-                )
-            );
-            setEditingUser(null);
-            setIsEditModalOpen(false);
+    const handleSave = useCallback(async () => {
+        if (editingUser?.id) {
+            try {
+                await db.users.update(editingUser.id, editingUser);
+                setEditingUser(null);
+                setIsEditModalOpen(false);
+            } catch (error) {
+                console.error(`Failed to update user: ${error}`);
+                // TODO: Implement user-facing error message
+            }
         }
-    };
+    }, [editingUser]);
 
-    const handleDelete = (userId: number): void => {
-        setUsers(users.filter((user) => user.id !== userId));
-    };
+    const handleDelete = useCallback(async (userId: number) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                await db.users.delete(userId);
+            } catch (error) {
+                console.error(`Failed to delete user: ${error}`);
+                // TODO: Implement user-facing error message
+            }
+        }
+    }, []);
 
-    const handleAddUser = (): void => {
-        setUsers([...users, { ...newUser, id: users.length + 1 }]);
-        setNewUser({ id: 0, name: "", email: "", role: "operator" as Role });
-        setIsAddModalOpen(false);
-    };
+    const handleAddUser = useCallback(async () => {
+        if (newUser.name && newUser.email) {
+            try {
+                const id = await db.users.add(newUser);
+                console.log(`User added with id ${id}`);
+                setIsAddModalOpen(false);
+                setNewUser({
+                    name: "",
+                    email: "",
+                    role: "operator" as Role,
+                });
+            } catch (error) {
+                console.error(`Failed to add user: ${error}`);
+                // TODO: Implement user-facing error message
+            }
+        } else {
+            console.error("Name and email are required");
+            // TODO: Implement user-facing error message
+        }
+    }, [newUser]);
 
     const filteredUsers = useMemo(() => {
-        return users.filter((user) => {
+        return users?.filter((user) => {
             const matchesSearch =
                 user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -68,9 +92,25 @@ const UsersManagementPage = () => {
         });
     }, [users, searchTerm, roleFilter]);
 
+    useEffect(() => {
+        const initDB = async () => {
+            const count = await db.users.count();
+            if (count === 0) {
+                await db.users.add({
+                    name: "Admin",
+                    email: "admin@example.com",
+                    role: "admin" as Role,
+                });
+            }
+        };
+        initDB();
+    }, []);
+
     return (
         <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-6">User Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">
+                User Management
+            </h1>
 
             <div className="bg-white p-4 rounded-lg shadow-md">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-4 md:space-y-0">
@@ -113,11 +153,13 @@ const UsersManagementPage = () => {
                                 <th className="border p-2 text-left">Name</th>
                                 <th className="border p-2 text-left">Email</th>
                                 <th className="border p-2 text-left">Role</th>
-                                <th className="border p-2 text-left">Actions</th>
+                                <th className="border p-2 text-left">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers.map((user) => (
+                            {filteredUsers?.map((user) => (
                                 <tr key={user.id}>
                                     <td className="border p-2">{user.name}</td>
                                     <td className="border p-2">{user.email}</td>
@@ -131,7 +173,11 @@ const UsersManagementPage = () => {
                                                 <Edit className="h-4 w-4" />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(user.id)}
+                                                onClick={() =>
+                                                    user.id !== undefined
+                                                        ? handleDelete(user.id)
+                                                        : null
+                                                }
                                                 className="bg-red-500 text-white p-1 rounded"
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -149,7 +195,7 @@ const UsersManagementPage = () => {
                 <input
                     type="text"
                     placeholder="Name"
-                    value={newUser.name}
+                    value={newUser?.name}
                     onChange={(e) =>
                         setNewUser({ ...newUser, name: e.target.value })
                     }

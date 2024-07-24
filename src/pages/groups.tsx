@@ -1,29 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Edit, X } from "lucide-react";
-
-interface Vendor {
-    id: number;
-    name: string;
-    category: string;
-    status: "Active" | "Inactive";
-}
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
+import { Ivendor } from "../types";
 
 const GroupsPage: React.FC = () => {
-    const [vendors, setVendors] = useState<Vendor[]>([
-        { id: 1, name: "Vendor A", category: "Electronics", status: "Active" },
-        { id: 2, name: "Vendor B", category: "Furniture", status: "Inactive" },
-        { id: 3, name: "Vendor C", category: "Stationery", status: "Active" },
-    ]);
-
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+    const [editingVendor, setEditingVendor] = useState<Ivendor | null>(null);
+
+    const vendors = useLiveQuery(() => db.vendors.toArray(), []) || [];
 
     const filteredVendors = vendors.filter((vendor) =>
         vendor.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const openModal = (vendor: Vendor | null = null) => {
+    const openModal = (vendor: Ivendor | null = null) => {
         setEditingVendor(
             vendor || { id: 0, name: "", category: "", status: "Active" }
         );
@@ -35,19 +27,21 @@ const GroupsPage: React.FC = () => {
         setEditingVendor(null);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (editingVendor) {
             if (editingVendor.id) {
-                setVendors(
-                    vendors.map((v) =>
-                        v.id === editingVendor.id ? editingVendor : v
-                    )
-                );
+                await db.vendors.update(editingVendor.id, editingVendor);
             } else {
-                setVendors([...vendors, { ...editingVendor, id: Date.now() }]);
+                await db.vendors.add(editingVendor);
             }
             closeModal();
+        }
+    };
+
+    const handleDelete = async (vendorId: number) => {
+        if (window.confirm("Are you sure you want to delete this vendor?")) {
+            await db.vendors.delete(vendorId);
         }
     };
 
@@ -58,9 +52,25 @@ const GroupsPage: React.FC = () => {
         setEditingVendor((prev) => (prev ? { ...prev, [name]: value } : null));
     };
 
+    useEffect(() => {
+        const initDB = async () => {
+            const count = await db.vendors.count();
+            if (count === 0) {
+                await db.vendors.add({
+                    name: "Vendor A",
+                    category: "Electronics",
+                    status: "Active",
+                });
+            }
+        };
+        initDB();
+    }, []);
+
     return (
         <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-6">Groups Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">
+                Groups Management
+            </h1>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex flex-col md:flex-row justify-between mb-4">
@@ -123,7 +133,13 @@ const GroupsPage: React.FC = () => {
                                         >
                                             <Edit size={16} />
                                         </button>
-                                        <button className="bg-red-500 hover:bg-red-600 p-1 rounded text-white">
+                                        <button
+                                            onClick={() =>
+                                                vendor.id !== undefined &&
+                                                handleDelete(vendor.id)
+                                            }
+                                            className="bg-red-500 hover:bg-red-600 p-1 rounded text-white"
+                                        >
                                             <Trash2 size={16} />
                                         </button>
                                     </td>

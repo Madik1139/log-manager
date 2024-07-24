@@ -9,7 +9,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
-import { Activity, FileText, AlertTriangle, Wrench } from "lucide-react";
+import { Activity, AlertTriangle, Wrench } from "lucide-react";
 
 const data = [
     { name: "Jan", usage: 4000, maintenance: 2400 },
@@ -27,26 +27,21 @@ const DashboardManager = () => {
         switch (activeTab) {
             case "overview":
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <StatCard
                             title="Total Machinery"
                             value="156"
-                            icon={<Activity className="text-blue-500" />}
+                            icon={<Activity size={30} className="text-blue-500" />}
                         />
                         <StatCard
                             title="Active Maintenance"
                             value="23"
-                            icon={<Wrench className="text-green-500" />}
-                        />
-                        <StatCard
-                            title="Pending Reports"
-                            value="7"
-                            icon={<FileText className="text-yellow-500" />}
+                            icon={<Wrench size={30} className="text-green-500" />}
                         />
                         <StatCard
                             title="Critical Issues"
                             value="3"
-                            icon={<AlertTriangle className="text-red-500" />}
+                            icon={<AlertTriangle size={30} className="text-red-500" />}
                         />
                     </div>
                 );

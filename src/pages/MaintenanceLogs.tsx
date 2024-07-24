@@ -1,26 +1,28 @@
 import React, { useState } from "react";
 import { Search, Filter, Download, PlusCircle, X } from "lucide-react";
 import { useAuth } from "../AuthContext";
-import { MaintenanceRequest, Role } from "../types";
-import { dummyMaintenance } from "../data/data";
+import { IMaintenance, Role } from "../types";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const MaintenanceLogsPage = () => {
-    const [maintenanceRecords, setMaintenanceRecords] =
-        useState<MaintenanceRequest[]>(dummyMaintenance);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterDate, setFilterDate] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newRecord, setNewRecord] = useState({
+    const [newRecord, setNewRecord] = useState<IMaintenance>({
         date: "",
         machine: "",
         issue: "",
         description: "",
-        priority: "",
+        priority: "Low",
         status: "Pending",
     });
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
     const isOperator = role === Role.Operator;
+
+    const maintenanceRecords =
+        useLiveQuery(() => db.maintenance.toArray(), []) || [];
 
     const filteredRecords = maintenanceRecords.filter(
         (record) =>
@@ -28,26 +30,23 @@ const MaintenanceLogsPage = () => {
             record.date.includes(filterDate)
     );
 
-    const handleAddRecord = (e: React.FormEvent) => {
+    const handleAddRecord = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMaintenanceRecords([
-            ...maintenanceRecords,
-            {
-                ...newRecord,
-                id: maintenanceRecords.length + 1,
-                priority: newRecord.priority as "Low" | "Medium" | "High",
+        try {
+            const id = await db.maintenance.add(newRecord);
+            console.log("Record added successfully with ID:", id);
+            setIsModalOpen(false);
+            setNewRecord({
+                date: "",
+                machine: "",
+                issue: "",
+                description: "",
+                priority: "Low",
                 status: "Pending",
-            },
-        ]);
-        setIsModalOpen(false);
-        setNewRecord({
-            date: "",
-            machine: "",
-            issue: "",
-            description: "",
-            priority: "",
-            status: "Pending",
-        });
+            });
+        } catch (error) {
+            console.error("Failed to add record:", error);
+        }
     };
 
     const handleInputChange = (

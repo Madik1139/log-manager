@@ -20,7 +20,7 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, children }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-5">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                 {children}
             </div>
@@ -58,6 +58,12 @@ const RoleSelectionPopup = ({
                     className="px-4 py-2 bg-yellow-200 text-yellow-900 font-bold rounded hover:bg-yellow-400"
                 >
                     Operator
+                </button>
+                <button
+                    onClick={() => onSelectRole(Role.Device)}
+                    className="px-4 py-2 bg-orange-300 text-orange-900 font-bold rounded hover:bg-orange-400"
+                >
+                    Device
                 </button>
                 <div className="mt-6 flex items-center justify-between">
                     <hr className="w-full border-gray-700" />

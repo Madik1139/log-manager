@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Trash2, Edit, Plus, X, Search } from "lucide-react";
-import {
-    adminPermissions,
-    allPermissions,
-    managerPermissions,
-    operatorPermissions,
-} from "../data/data";
-import { Role } from "../types";
-
-interface UserRole {
-    name: string;
-    permissions: string[];
-}
+import { adminPermissions, allPermissions, managerPermissions, operatorPermissions } from "../data/data";
+import { Irole } from "../types";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const Modal: React.FC<{
     isOpen: boolean;
@@ -36,42 +28,61 @@ const Modal: React.FC<{
 };
 
 const RoleManagementPage = () => {
-    const [roles, setRoles] = useState<UserRole[]>([]);
-    const [editingRole, setEditingRole] = useState<UserRole | null>(null);
+    // const [roles, setRoles] = useState<Irole[]>([]);
+    const [editingRole, setEditingRole] = useState<Irole | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
+    const roles = useLiveQuery(() => db.roles.toArray(), []) || [];
+
     useEffect(() => {
-        const initialRoles: UserRole[] = [
-            { name: Role.Admin, permissions: adminPermissions },
-            { name: Role.Manager, permissions: managerPermissions },
-            { name: Role.Operator, permissions: operatorPermissions },
-        ];
-        setRoles(initialRoles);
+        const initDB = async () => {
+            const count = await db.roles.count();
+            if (count === 0) {
+                await db.roles.bulkAdd([
+                    {
+                        name: "Admin",
+                        permissions: adminPermissions
+                        ,
+                    },
+                    {
+                        name: "Manager",
+                        permissions: managerPermissions
+                        ,
+                    },
+                    {
+                        name: "Operator",
+                        permissions: operatorPermissions
+                        ,
+                    },
+                ]);
+            }
+        };
+        initDB();
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (editingRole) {
-            if (roles.some((r) => r.name === editingRole.name)) {
-                setRoles(
-                    roles.map((r) =>
-                        r.name === editingRole.name ? editingRole : r
-                    )
-                );
-            } else {
-                setRoles([...roles, editingRole]);
-            }
+        if (editingRole?.id) {
+            await db.roles.update(editingRole.id, (obj) => {
+                obj.name = editingRole.name;
+                obj.permissions = editingRole.permissions;
+                return true; // return true to indicate that the object has been updated
+            });
+        } else if (editingRole) {
+            await db.roles.add(editingRole);
         }
         setEditingRole(null);
         setIsModalOpen(false);
     };
 
-    const handleDelete = (roleName: string) => {
-        setRoles(roles.filter((r) => r.name !== roleName));
+    const handleDelete = async (roleId: number) => {
+        if (window.confirm("Are you sure you want to delete this role?")) {
+            await db.roles.delete(roleId);
+        }
     };
 
-    const handleEdit = (role: UserRole) => {
+    const handleEdit = (role: Irole) => {
         setEditingRole({ ...role });
         setIsModalOpen(true);
     };
@@ -87,7 +98,9 @@ const RoleManagementPage = () => {
 
     return (
         <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-6">Role Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+                Role Management
+            </h1>
 
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-4 sm:space-y-0">
@@ -155,7 +168,8 @@ const RoleManagementPage = () => {
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    handleDelete(role.name)
+                                                    role.id !== undefined &&
+                                                    handleDelete(role.id)
                                                 }
                                                 className="bg-red-600 text-white p-1 rounded hover:bg-red-800"
                                             >

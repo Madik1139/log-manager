@@ -14,11 +14,13 @@ import { chartData, features, metrics } from "../../data/data";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import DashboardManager from "./DashboardManager";
+import DashboardDevice from "./DashboardDevice";
 
 const Dashboard = ({ userRole = curentRole }) => {
     const [systemStatus, setSystemStatus] = useState("healthy");
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
+    const isDevice = role === Role.Device;
 
     useEffect(() => {
         setSystemStatus("healthy");
@@ -142,6 +144,8 @@ const Dashboard = ({ userRole = curentRole }) => {
                         </div>
                     </div>
                 </>
+            ) : isDevice ? (
+                <DashboardDevice />
             ) : (
                 <DashboardManager />
             )}

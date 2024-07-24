@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Filter, PlusCircle, Eye, Edit, Trash, X } from "lucide-react";
 import MaintenanceLogsPage from "./MaintenanceLogs";
 import { useAuth } from "../AuthContext";
-import { MaintenanceRequest, Role } from "../types";
-import { dummyMaintenance } from "../data/data";
+import { IMaintenance, Role } from "../types";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const MaintenanceManagementPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -12,22 +13,21 @@ const MaintenanceManagementPage: React.FC = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalType, setModalType] = useState<"add" | "edit" | "view">("add");
     const [selectedRequest, setSelectedRequest] =
-        useState<MaintenanceRequest | null>(null);
+        useState<IMaintenance | null>(null);
     const { role } = useAuth();
     const isAdmin = role === Role.Admin;
     const isOperator = role === Role.Operator;
 
-    const [maintenanceRequests, setMaintenanceRequests] =
-        useState<MaintenanceRequest[]>(dummyMaintenance);
+    const maintenance = useLiveQuery(() => db.maintenance.toArray(), []) || [];
 
-    const filteredRequests = maintenanceRequests.filter(
+    const filteredRequests = maintenance.filter(
         (request) =>
             request.machine.toLowerCase().includes(searchTerm.toLowerCase()) &&
             request.status.toLowerCase().includes(filterStatus.toLowerCase())
     );
 
     const getPriorityColor = (
-        priority: MaintenanceRequest["priority"]
+        priority: IMaintenance["priority"]
     ): string => {
         switch (priority.toLowerCase()) {
             case "high":
@@ -41,12 +41,10 @@ const MaintenanceManagementPage: React.FC = () => {
         }
     };
 
-    const getStatusColor = (status: MaintenanceRequest["status"]): string => {
+    const getStatusColor = (status: IMaintenance["status"]): string => {
         switch (status.toLowerCase()) {
             case "pending":
                 return "bg-yellow-100 text-yellow-800";
-            case "approved":
-                return "bg-blue-100 text-blue-800";
             case "in progress":
                 return "bg-purple-100 text-purple-800";
             case "completed":
@@ -56,13 +54,12 @@ const MaintenanceManagementPage: React.FC = () => {
         }
     };
 
-    const handleShowManagement = (): void => setShowLogs(false);
-    const handleShowLogs = (): void => setShowLogs(true);
+    const handleShowManagement = () => setShowLogs(false);
+    const handleShowLogs = () => setShowLogs(true);
 
-    const handleAddRequest = (): void => {
+    const handleAddRequest = () => {
         setModalType("add");
         setSelectedRequest({
-            id: maintenanceRequests.length + 1,
             date: new Date().toISOString().split("T")[0],
             machine: "",
             issue: "",
@@ -73,43 +70,65 @@ const MaintenanceManagementPage: React.FC = () => {
         setShowModal(true);
     };
 
-    const handleViewDetails = (request: MaintenanceRequest): void => {
+    const handleViewDetails = (request: IMaintenance) => {
         setModalType("view");
         setSelectedRequest(request);
         setShowModal(true);
     };
 
-    const handleEditRequest = (request: MaintenanceRequest): void => {
+    const handleEditRequest = (request: IMaintenance) => {
         setModalType("edit");
         setSelectedRequest(request);
         setShowModal(true);
     };
 
-    const handleDeleteRequest = (id: number): void => {
+    const handleDeleteRequest = async (id: number) => {
         if (window.confirm("Are you sure you want to delete this request?")) {
-            setMaintenanceRequests(
-                maintenanceRequests.filter((request) => request.id !== id)
-            );
+            try {
+                await db.maintenance.delete(id);
+            } catch (error) {
+                console.error(`Failed to delete user: ${error}`);
+                // TODO: Implement user-facing error message
+            }
         }
     };
 
-    const handleCloseModal = (): void => {
+    const handleCloseModal = () => {
         setShowModal(false);
         setSelectedRequest(null);
     };
 
-    const handleSaveRequest = (updatedRequest: MaintenanceRequest): void => {
-        if (modalType === "add") {
-            setMaintenanceRequests([...maintenanceRequests, updatedRequest]);
-        } else if (modalType === "edit") {
-            setMaintenanceRequests(
-                maintenanceRequests.map((request) =>
-                    request.id === updatedRequest.id ? updatedRequest : request
-                )
-            );
+    const handleSaveRequest = async (updatedRequest: IMaintenance) => {
+        try {
+            if (modalType === "add") {
+                await db.maintenance.add(updatedRequest);
+            } else if (modalType === "edit" && updatedRequest.id) {
+                await db.maintenance.update(updatedRequest.id, updatedRequest);
+            }
+            handleCloseModal();
+        } catch (error) {
+            console.error(`Failed to save maintenance request: ${error}`);
+            // TODO: Implement user-facing error message
         }
-        handleCloseModal();
     };
+
+    useEffect(() => {
+        const initDB = async () => {
+            const count = await db.maintenance.count();
+            if (count === 0) {
+                await db.maintenance.add({
+                    date: "2024-07-18",
+                    machine: "Machine B",
+                    issue: "Unusual noise",
+                    description:
+                        "The machine is making a loud grinding noise during operation.",
+                    priority: "High",
+                    status: "Pending",
+                });
+            }
+        };
+        initDB();
+    }, []);
 
     return (
         <div>
@@ -168,7 +187,6 @@ const MaintenanceManagementPage: React.FC = () => {
                                 >
                                     <option value="">All Statuses</option>
                                     <option value="Pending">Pending</option>
-                                    <option value="Approved">Approved</option>
                                     <option value="In Progress">
                                         In Progress
                                     </option>
@@ -268,6 +286,8 @@ const MaintenanceManagementPage: React.FC = () => {
                                                 <button
                                                     className="bg-red-500 hover:bg-red-700 text-white p-1 rounded"
                                                     onClick={() =>
+                                                        request.id !==
+                                                            undefined &&
                                                         handleDeleteRequest(
                                                             request.id
                                                         )
@@ -294,7 +314,7 @@ const MaintenanceManagementPage: React.FC = () => {
             )}
 
             {showModal && selectedRequest && (
-                <MaintenanceRequestModal
+                <IMaintenanceModal
                     type={modalType}
                     request={selectedRequest}
                     onClose={handleCloseModal}
@@ -305,20 +325,20 @@ const MaintenanceManagementPage: React.FC = () => {
     );
 };
 
-interface MaintenanceRequestModalProps {
+interface IMaintenanceModalProps {
     type: "add" | "edit" | "view";
-    request: MaintenanceRequest;
+    request: IMaintenance;
     onClose: () => void;
-    onSave: (request: MaintenanceRequest) => void;
+    onSave: (request: IMaintenance) => void;
 }
 
-const MaintenanceRequestModal: React.FC<MaintenanceRequestModalProps> = ({
+const IMaintenanceModal: React.FC<IMaintenanceModalProps> = ({
     type,
     request,
     onClose,
     onSave,
 }) => {
-    const [formData, setFormData] = useState<MaintenanceRequest>(request);
+    const [formData, setFormData] = useState<IMaintenance>(request);
 
     const handleChange = (
         e: React.ChangeEvent<
@@ -445,7 +465,6 @@ const MaintenanceRequestModal: React.FC<MaintenanceRequestModalProps> = ({
                             disabled={type === "view"}
                         >
                             <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Completed">Completed</option>
                         </select>

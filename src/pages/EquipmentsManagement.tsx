@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Plus, Edit, Trash2, X, ChevronLeft } from "lucide-react";
-import { Equipment, Role } from "../types";
+import { IEquipment, Role } from "../types";
 import { useAuth } from "../AuthContext";
 import EquipmentLogPage from "./EquipmentsLogs";
-import { initialEquipment } from "../data/data";
+import { useLiveQuery } from "dexie-react-hooks";
+import db from "../models/DexieDB";
 
 const EquipmentManagementPage = () => {
-    const [equipment, setEquipment] = useState(initialEquipment);
+    // const [equipment, setEquipment] = useState(initialEquipment);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedEquipment, setSelectedEquipment] =
-        useState<Equipment | null>(null);
+        useState<IEquipment | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showLogs, setShowLogs] = useState(false);
@@ -17,14 +18,16 @@ const EquipmentManagementPage = () => {
     const isAdmin = role === Role.Admin;
     const [showMobileDetails, setShowMobileDetails] = useState(false);
 
-    const filteredEquipment = equipment.filter(
+    const equipments = useLiveQuery(() => db.equipments.toArray(), []) || [];
+
+    const filteredEquipment = equipments?.filter(
         (item) =>
             item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleSelectEquipment = (item: Equipment) => {
+    const handleSelectEquipment = (item: IEquipment) => {
         setSelectedEquipment(item);
         setIsEditing(false);
     };
@@ -37,27 +40,46 @@ const EquipmentManagementPage = () => {
         setIsEditing(true);
     };
 
-    const handleSave = (updatedEquipment: Equipment) => {
+    const handleSave = async (updatedEquipment: IEquipment) => {
         if (showAddModal) {
-            setEquipment([
-                ...equipment,
-                { ...updatedEquipment, id: Date.now() },
-            ]);
-            setShowAddModal(false);
+            try {
+                const id = await db.equipments.add(updatedEquipment);
+                console.log(`Eqipment added with id ${id}`);
+                setShowAddModal(false);
+            } catch (error) {
+                console.error(`Failed to add equipment: ${error}`);
+            }
         } else {
-            setEquipment(
-                equipment.map((e) =>
-                    e.id === updatedEquipment.id ? updatedEquipment : e
-                )
-            );
-            setIsEditing(false);
+            if (updatedEquipment.id !== undefined) {
+                try {
+                    const id = await db.equipments.update(
+                        updatedEquipment.id,
+                        updatedEquipment
+                    );
+                    console.log(`Eqipment added with id ${id}`);
+                    setIsEditing(false);
+                } catch (error) {
+                    console.error(`Failed to add equipment: ${error}`);
+                }
+            } else {
+                console.error("Equipment id is undefined");
+            }
         }
         setSelectedEquipment(updatedEquipment);
     };
 
-    const handleDelete = (id: number) => {
-        setEquipment(equipment.filter((e) => e.id !== id));
-        setSelectedEquipment(null);
+    const handleDelete = async (id: number) => {
+        if (
+            window.confirm("Are you sure you want to delete this equipment?")
+        ) {
+            try {
+                await db.equipments.delete(id);
+                setSelectedEquipment(null);
+            } catch (error) {
+                console.error(`Failed to delete equipment: ${error}`);
+                // TODO: Implement user-facing error message
+            }
+        }
     };
 
     const handleShowManagement = () => {
@@ -68,11 +90,28 @@ const EquipmentManagementPage = () => {
         setShowLogs(true);
     };
 
-    const handleMobileSelect = (item: Equipment) => {
+    const handleMobileSelect = (item: IEquipment) => {
         setSelectedEquipment(item);
         setIsEditing(false);
         setShowMobileDetails(true);
     };
+
+    useEffect(() => {
+        const initDB = async () => {
+            const count = await db.equipments.count();
+            if (count === 0) {
+                await db.equipments.add({
+                    name: "Grader A",
+                    type: "Heavy Machinery",
+                    status: "Normal",
+                    operator: "John Doe",
+                    lastMaintenance: "2024-06-15",
+                    duration: "11 hours",
+                });
+            }
+        };
+        initDB();
+    }, []);
 
     return (
         <div>
@@ -135,7 +174,7 @@ const EquipmentManagementPage = () => {
                             <h2 className="text-xl font-semibold mb-4">
                                 Equipment List
                             </h2>
-                            {filteredEquipment.map((item) => (
+                            {filteredEquipment?.map((item) => (
                                 <div
                                     key={item.id}
                                     className={`p-2 mb-2 rounded cursor-pointer bg-gray-100 ${
@@ -205,9 +244,12 @@ const EquipmentManagementPage = () => {
                                                     </button>
                                                     <button
                                                         onClick={() =>
-                                                            handleDelete(
-                                                                selectedEquipment.id
-                                                            )
+                                                            selectedEquipment.id !==
+                                                            undefined
+                                                                ? handleDelete(
+                                                                      selectedEquipment.id
+                                                                  )
+                                                                : null
                                                         }
                                                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                                                     >
@@ -336,9 +378,9 @@ const EquipmentForm = ({ equipment, onSave, onCancel }: any) => {
                     className="w-full p-2 border rounded"
                     required
                 >
-                    <option value="Operational">Operational</option>
+                    <option value="Normal">Normal</option>
                     <option value="Under Maintenance">Under Maintenance</option>
-                    <option value="Out of Service">Out of Service</option>
+                    <option value="Need Maintenance">Need Maintenance</option>
                 </select>
             </div>
             <div className="mb-4">
@@ -385,16 +427,16 @@ const AddEquipmentModal = ({
     onSave,
     onClose,
 }: {
-    onSave: (equipment: Equipment) => void;
+    onSave: (equipment: IEquipment) => void;
     onClose: () => void;
 }) => {
-    const [formData, setFormData] = useState<Equipment>({
-        id: 0,
+    const [formData, setFormData] = useState<IEquipment>({
         name: "",
         type: "",
-        status: "Operational",
+        status: "Normal",
         operator: "",
         lastMaintenance: "",
+        duration: "8 hours",
     });
 
     const handleChange = (
@@ -463,12 +505,12 @@ const AddEquipmentModal = ({
                             className="w-full p-2 border rounded"
                             required
                         >
-                            <option value="Operational">Operational</option>
+                            <option value="Normal">Normal</option>
                             <option value="Under Maintenance">
                                 Under Maintenance
                             </option>
-                            <option value="Out of Service">
-                                Out of Service
+                            <option value="Need Maintenance">
+                                Need Maintenance
                             </option>
                         </select>
                     </div>
