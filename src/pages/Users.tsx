@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { UserPlus, Edit, Trash2, Search } from "lucide-react";
-import { Role, IUser } from "../types";
+import { Role, IUser } from "../models/types";
 import db from "../models/DexieDB";
 import { useLiveQuery } from "dexie-react-hooks";
+import { debugLog } from "../utils/debugUtils";
 
 const Modal = ({ isOpen, title, children }: any) => {
     if (!isOpen) return null;
@@ -22,21 +23,43 @@ const UsersManagementPage = () => {
     const [newUser, setNewUser] = useState<IUser>({
         name: "",
         email: "",
-        role: "operator" as Role,
+        role: Role.Operator,
     });
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<Role | "all">("all");
 
-    const users = useLiveQuery(() => db.users.toArray(), []);
+    const users = useLiveQuery(() => {
+        if (searchTerm === "" && roleFilter === "all") {
+            return db.users.toArray();
+        } else if (searchTerm === "") {
+            return db.users.where("role").equals(roleFilter).toArray();
+        } else if (roleFilter === "all") {
+            return db.users
+                .where("name")
+                .startsWithIgnoreCase(searchTerm)
+                .or("email")
+                .startsWithIgnoreCase(searchTerm)
+                .toArray();
+        } else {
+            return db.users
+                .where("[role+name]")
+                .between([roleFilter, searchTerm], [roleFilter, searchTerm + '\uffff'])
+                .or("[role+email]")
+                .between([roleFilter, searchTerm], [roleFilter, searchTerm + '\uffff'])
+                .toArray();
+        }
+    }, [searchTerm, roleFilter]);
+    
+    debugLog("Users:", users);
 
-    const handleEdit = useCallback((user: IUser) => {
+    const handleEdit = (user: IUser) => {
         setEditingUser({ ...user });
         setIsEditModalOpen(true);
-    }, []);
+    };
 
-    const handleSave = useCallback(async () => {
+    const handleSave = async () => {
         if (editingUser?.id) {
             try {
                 await db.users.update(editingUser.id, editingUser);
@@ -47,9 +70,9 @@ const UsersManagementPage = () => {
                 // TODO: Implement user-facing error message
             }
         }
-    }, [editingUser]);
+    };
 
-    const handleDelete = useCallback(async (userId: number) => {
+    const handleDelete = async (userId: number) => {
         if (window.confirm("Are you sure you want to delete this user?")) {
             try {
                 await db.users.delete(userId);
@@ -58,9 +81,9 @@ const UsersManagementPage = () => {
                 // TODO: Implement user-facing error message
             }
         }
-    }, []);
+    };
 
-    const handleAddUser = useCallback(async () => {
+    const handleAddUser = async () => {
         if (newUser.name && newUser.email) {
             try {
                 const id = await db.users.add(newUser);
@@ -69,7 +92,7 @@ const UsersManagementPage = () => {
                 setNewUser({
                     name: "",
                     email: "",
-                    role: "operator" as Role,
+                    role: Role.Operator,
                 });
             } catch (error) {
                 console.error(`Failed to add user: ${error}`);
@@ -79,18 +102,7 @@ const UsersManagementPage = () => {
             console.error("Name and email are required");
             // TODO: Implement user-facing error message
         }
-    }, [newUser]);
-
-    const filteredUsers = useMemo(() => {
-        return users?.filter((user) => {
-            const matchesSearch =
-                user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesRole =
-                roleFilter === "all" || user.role === roleFilter;
-            return matchesSearch && matchesRole;
-        });
-    }, [users, searchTerm, roleFilter]);
+    };
 
     useEffect(() => {
         const initDB = async () => {
@@ -99,7 +111,7 @@ const UsersManagementPage = () => {
                 await db.users.add({
                     name: "Admin",
                     email: "admin@example.com",
-                    role: "admin" as Role,
+                    role: Role.Admin,
                 });
             }
         };
@@ -159,7 +171,7 @@ const UsersManagementPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers?.map((user) => (
+                            {users?.map((user) => (
                                 <tr key={user.id}>
                                     <td className="border p-2">{user.name}</td>
                                     <td className="border p-2">{user.email}</td>

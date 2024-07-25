@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ITimesheet } from "../types";
+import { ITimesheet } from "../models/types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
 

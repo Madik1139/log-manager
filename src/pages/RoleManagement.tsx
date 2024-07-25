@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Edit, Plus, X, Search } from "lucide-react";
 import { adminPermissions, allPermissions, managerPermissions, operatorPermissions } from "../data/data";
-import { Irole } from "../types";
+import { Irole } from "../models/types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
 

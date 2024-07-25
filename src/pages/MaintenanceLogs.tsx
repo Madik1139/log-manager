@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Search, Filter, Download, PlusCircle, X } from "lucide-react";
-import { useAuth } from "../AuthContext";
-import { IMaintenance, Role } from "../types";
+import { useAuth } from "../auth/AuthContext";
+import { IMaintenance, MaintenanceStatus, Priority, Role } from "../models/types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
 
@@ -14,12 +14,12 @@ const MaintenanceLogsPage = () => {
         machine: "",
         issue: "",
         description: "",
-        priority: "Low",
-        status: "Pending",
+        priority: Priority.Low,
+        status: MaintenanceStatus.Pending,
     });
-    const { role } = useAuth();
-    const isAdmin = role === Role.Admin;
-    const isOperator = role === Role.Operator;
+    const { user } = useAuth();
+    const isAdmin = user?.role === Role.Admin;
+    const isOperator = user?.role === Role.Operator;
 
     const maintenanceRecords =
         useLiveQuery(() => db.maintenance.toArray(), []) || [];
@@ -41,8 +41,8 @@ const MaintenanceLogsPage = () => {
                 machine: "",
                 issue: "",
                 description: "",
-                priority: "Low",
-                status: "Pending",
+                priority: Priority.Low,
+                status: MaintenanceStatus.Pending,
             });
         } catch (error) {
             console.error("Failed to add record:", error);

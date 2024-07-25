@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Dashboard from "./pages/dashboard/Dashboard";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Login from "./pages/Login";
-import { AuthProvider, useAuth } from "./AuthContext";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
 import UsersManagemenPage from "./pages/Users";
 import Sidebar from "./components/SideBar";
 import MyProfilePage from "./pages/Profile";
@@ -20,14 +20,14 @@ import MaintenanceManagementPage from "./pages/MaintenanceManagement";
 import GroupsPage from "./pages/groups";
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
-    const { isLoggedIn, isLoading } = useAuth();
+    const { user, isLoading } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
-        return <div>Loading...</div>; // Or a proper loading component
+        return <div className="text-center mt-20 text-2xl font-semibold">Loading...</div>;
     }
 
-    if (!isLoggedIn) {
+    if (user === null) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
 };
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-    const { isLoggedIn } = useAuth();
+    const { user } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => {
@@ -44,11 +44,11 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <div className="flex h-screen bg-gray-100">
-            {isLoggedIn && (
+            {user && (
                 <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
             )}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {isLoggedIn && (
+                {user && (
                     <div className="bg-white shadow-md pl-4 py-2 md:hidden z-30">
                         <button
                             onClick={toggleSidebar}
@@ -61,7 +61,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
                 <div className="flex-1 overflow-auto">
                     <div
                         className={`p-10 ${
-                            isLoggedIn ? "md:ml-64" : ""
+                            user ? "md:ml-64" : ""
                         } transition-all duration-300`}
                     >
                         {children}

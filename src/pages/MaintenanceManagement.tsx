@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Search, Filter, PlusCircle, Eye, Edit, Trash, X } from "lucide-react";
 import MaintenanceLogsPage from "./MaintenanceLogs";
-import { useAuth } from "../AuthContext";
-import { IMaintenance, Role } from "../types";
+import { useAuth } from "../auth/AuthContext";
+import { IMaintenance, MaintenanceStatus, Priority, Role } from "../models/types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
 
@@ -12,11 +12,10 @@ const MaintenanceManagementPage: React.FC = () => {
     const [showLogs, setShowLogs] = useState<boolean>(false);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalType, setModalType] = useState<"add" | "edit" | "view">("add");
-    const [selectedRequest, setSelectedRequest] =
-        useState<IMaintenance | null>(null);
-    const { role } = useAuth();
-    const isAdmin = role === Role.Admin;
-    const isOperator = role === Role.Operator;
+    const [selectedRequest, setSelectedRequest] = useState<IMaintenance | null>(null);
+    const { user } = useAuth();
+    const isAdmin = user?.role === Role.Admin;
+    const isOperator = user?.role === Role.Operator;
 
     const maintenance = useLiveQuery(() => db.maintenance.toArray(), []) || [];
 
@@ -64,8 +63,8 @@ const MaintenanceManagementPage: React.FC = () => {
             machine: "",
             issue: "",
             description: "",
-            priority: "Low",
-            status: "Pending",
+            priority: Priority.Low,
+            status: MaintenanceStatus.Pending,
         });
         setShowModal(true);
     };
@@ -122,8 +121,8 @@ const MaintenanceManagementPage: React.FC = () => {
                     issue: "Unusual noise",
                     description:
                         "The machine is making a loud grinding noise during operation.",
-                    priority: "High",
-                    status: "Pending",
+                    priority: Priority.High,
+                    status: MaintenanceStatus.Pending,
                 });
             }
         };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Edit, X } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
-import { Ivendor } from "../types";
+import { Ivendor, VendorStatus } from "../models/types";
 
 const GroupsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -17,7 +17,7 @@ const GroupsPage: React.FC = () => {
 
     const openModal = (vendor: Ivendor | null = null) => {
         setEditingVendor(
-            vendor || { id: 0, name: "", category: "", status: "Active" }
+            vendor || { id: 0, name: "", category: "", status: VendorStatus.Active }
         );
         setIsModalOpen(true);
     };
@@ -59,7 +59,7 @@ const GroupsPage: React.FC = () => {
                 await db.vendors.add({
                     name: "Vendor A",
                     category: "Electronics",
-                    status: "Active",
+                    status: VendorStatus.Active,
                 });
             }
         };

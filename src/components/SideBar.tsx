@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, User, X } from "lucide-react";
-import { Role } from "../types";
-import { useAuth } from "../AuthContext";
+import { Role } from "../models/types";
+import { useAuth } from "../auth/AuthContext";
 import { menuItems } from "../data/data";
 
 interface SidebarProps {
@@ -84,7 +84,7 @@ const RoleSelectionPopup = ({
 const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { logout, user, role, setRole } = useAuth();
+    const { logout, user, updateUserRole } = useAuth();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     const handleLogout = () => {
@@ -92,8 +92,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     };
 
     const handleSelectRole = (selectedRole: Role) => {
-        localStorage.setItem("role", selectedRole);
-        setRole(selectedRole);
+        updateUserRole(selectedRole);
         setIsPopupOpen(false);
     };
 
@@ -111,7 +110,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
             >
                 <nav>
                     <h2 className="text-2xl font-bold mb-6">Log Manager</h2>
-                    {menuItems[role!].map((item) => (
+                    {user && menuItems[user.role]?.map((item) => (
                         <Link
                             key={item.id}
                             to={item.path}
@@ -147,7 +146,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                                 {user?.name || "User"}
                             </p>
                             <p className="text-sm text-gray-600 capitalize">
-                                {role}
+                                {user?.role}
                             </p>
                         </div>
                     </div>

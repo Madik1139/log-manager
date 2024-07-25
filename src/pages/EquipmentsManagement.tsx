@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Edit, Trash2, X, ChevronLeft } from "lucide-react";
-import { IEquipment, Role } from "../types";
-import { useAuth } from "../AuthContext";
+import { IEquipment, Role } from "../models/types";
+import { useAuth } from "../auth/AuthContext";
 import EquipmentLogPage from "./EquipmentsLogs";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
@@ -14,8 +14,8 @@ const EquipmentManagementPage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showLogs, setShowLogs] = useState(false);
-    const { role } = useAuth();
-    const isAdmin = role === Role.Admin;
+    const { user } = useAuth();
+    const isAdmin = user?.role === Role.Admin;
     const [showMobileDetails, setShowMobileDetails] = useState(false);
 
     const equipments = useLiveQuery(() => db.equipments.toArray(), []) || [];

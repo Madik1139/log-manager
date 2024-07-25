@@ -9,18 +9,18 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { curentRole, Role } from "../../types";
 import { chartData, features, metrics } from "../../data/data";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../AuthContext";
+import { useAuth } from "../../auth/AuthContext";
 import DashboardManager from "./DashboardManager";
 import DashboardDevice from "./DashboardDevice";
+import { Role } from "../../models/types";
 
-const Dashboard = ({ userRole = curentRole }) => {
+const Dashboard = () => {
     const [systemStatus, setSystemStatus] = useState("healthy");
-    const { role } = useAuth();
-    const isAdmin = role === Role.Admin;
-    const isDevice = role === Role.Device;
+    const { user } = useAuth();
+    const isAdmin = user?.role === Role.Admin;
+    const isDevice = user?.role === Role.Device;
 
     useEffect(() => {
         setSystemStatus("healthy");
@@ -97,7 +97,7 @@ const Dashboard = ({ userRole = curentRole }) => {
 
                     {/* Key Metrics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        {metrics[userRole as keyof typeof metrics].map(
+                        {metrics[user.role as keyof typeof metrics].map(
                             (metric, index) => (
                                 <div
                                     key={index}
@@ -126,7 +126,7 @@ const Dashboard = ({ userRole = curentRole }) => {
                             Quick Access
                         </h2>
                         <div className="flex flex-wrap gap-4">
-                            {features[userRole as keyof typeof features].map(
+                            {features[user.role as keyof typeof features].map(
                                 (feature, index) => (
                                     <Link
                                         to={feature.path}

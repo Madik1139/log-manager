@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Search, Filter, Download } from "lucide-react";
-import { useAuth } from "../AuthContext";
-import { Role } from "../types";
+import { useAuth } from "../auth/AuthContext";
+import { Role } from "../models/types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../models/DexieDB";
 
 const EquipmentLogPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterDate, setFilterDate] = useState("");
-    const { role } = useAuth();
-    const isOperator = role === Role.Operator;
+    const { user } = useAuth();
+    const isOperator = user?.role === Role.Operator;
 
     const logData = useLiveQuery(() => db.equipments.toArray(), []) || [];
 

@@ -15,7 +15,7 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
-import { IMaintenance, ITimesheet, Role } from "../types";
+import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../models/types";
 
 export const menuItems = {
     admin: [
@@ -297,19 +297,19 @@ export const dummyUsers = [
         id: 1,
         name: "John Doe",
         email: "john@example.com",
-        role: "operator" as Role,
+        role: Role.Operator,
     },
     {
         id: 2,
         name: "Jane Smith",
         email: "jane@example.com",
-        role: "admin" as Role,
+        role: Role.Admin,
     },
     {
         id: 3,
         name: "Bob Johnson",
         email: "bob@example.com",
-        role: "manager" as Role,
+        role: Role.Manager,
     },
 ];
 
@@ -435,8 +435,8 @@ export const dummyMaintenance: IMaintenance[] = [
         machine: "Machine B",
         issue: "Unusual noise",
         description: "The machine is making a loud grinding noise during operation.",
-        priority: "High",
-        status: "Pending",
+        priority: Priority.High,
+        status: MaintenanceStatus.Pending,
     },
     {
         id: 2,
@@ -444,8 +444,8 @@ export const dummyMaintenance: IMaintenance[] = [
         machine: "Machine A",
         issue: "Regular checkup",
         description: "Scheduled maintenance for routine inspection and tune-up.",
-        priority: "Low",
-        status: "Approved",
+        priority: Priority.Low,
+        status: MaintenanceStatus.InProgress,
     },
     {
         id: 3,
@@ -453,8 +453,8 @@ export const dummyMaintenance: IMaintenance[] = [
         machine: "Machine D",
         issue: "Performance degradation",
         description: "Machine efficiency has decreased by 15% over the past week.",
-        priority: "Medium",
-        status: "In Progress",
+        priority: Priority.Medium,
+        status: MaintenanceStatus.Completed,
     },
     {
         id: 4,
@@ -462,8 +462,8 @@ export const dummyMaintenance: IMaintenance[] = [
         machine: "Machine C",
         issue: "Software update",
         description: "New firmware version available for improved functionality.",
-        priority: "Low",
-        status: "Completed",
+        priority: Priority.High,
+        status: MaintenanceStatus.Pending,
     },
     {
         id: 5,
@@ -471,8 +471,8 @@ export const dummyMaintenance: IMaintenance[] = [
         machine: "Machine A",
         issue: "Oil leak",
         description: "Small oil leak detected near the main gear assembly.",
-        priority: "High",
-        status: "In Progress",
+        priority: Priority.Low,
+        status: MaintenanceStatus.InProgress,
     },
 ];
 
