@@ -15,7 +15,7 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
-import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../models/types";
+import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../domain/entities/Types";
 
 export const menuItems = {
     admin: [

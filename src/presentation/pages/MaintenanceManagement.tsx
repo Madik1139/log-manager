@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Search, Filter, PlusCircle, Eye, Edit, Trash, X } from "lucide-react";
 import MaintenanceLogsPage from "./MaintenanceLogs";
-import { useAuth } from "../auth/AuthContext";
-import { IMaintenance, MaintenanceStatus, Priority, Role } from "../models/types";
+import { useAuth } from "../../application/auth/AuthContext";
+import { IMaintenance, MaintenanceStatus, Priority, Role } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
 
 const MaintenanceManagementPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -59,6 +59,7 @@ const MaintenanceManagementPage: React.FC = () => {
     const handleAddRequest = () => {
         setModalType("add");
         setSelectedRequest({
+            uid: "",
             date: new Date().toISOString().split("T")[0],
             machine: "",
             issue: "",
@@ -116,6 +117,7 @@ const MaintenanceManagementPage: React.FC = () => {
             const count = await db.maintenance.count();
             if (count === 0) {
                 await db.maintenance.add({
+                    uid: "",
                     date: "2024-07-18",
                     machine: "Machine B",
                     issue: "Unusual noise",

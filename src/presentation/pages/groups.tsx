@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Trash2, Edit, X } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
-import { Ivendor, VendorStatus } from "../models/types";
+import db from "../../infrastructure/db/DexieDB";
+import { Ivendor, VendorStatus } from "../../domain/entities/Types";
+import { generateUID } from "../../application/utils/utils";
 
 const GroupsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -17,7 +18,7 @@ const GroupsPage: React.FC = () => {
 
     const openModal = (vendor: Ivendor | null = null) => {
         setEditingVendor(
-            vendor || { id: 0, name: "", category: "", status: VendorStatus.Active }
+            vendor || { id: 0, uid: "", name: "", category: "", status: VendorStatus.Active }
         );
         setIsModalOpen(true);
     };
@@ -57,6 +58,7 @@ const GroupsPage: React.FC = () => {
             const count = await db.vendors.count();
             if (count === 0) {
                 await db.vendors.add({
+                    uid: generateUID(),
                     name: "Vendor A",
                     category: "Electronics",
                     status: VendorStatus.Active,
@@ -147,6 +149,11 @@ const GroupsPage: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                    {filteredVendors.length === 0 && (
+                        <p className="text-center text-gray-500 text-lg mt-4">
+                            No vendors found
+                        </p>
+                    )}
                 </div>
             </div>
 

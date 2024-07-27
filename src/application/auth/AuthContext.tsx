@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { IUser, Role } from "../models/types";
+import { IUser, Role } from "../../domain/entities/Types";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { generateUID } from "../utils/utils";
 
 interface AuthContextType {
     user: IUser | null;
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             if (email === "admin@email.com" && password === "admin") {
                 const userData: IUser = {
+                    uid: generateUID(),
                     name: "Admin",
                     email: email,
                     role: Role.Admin

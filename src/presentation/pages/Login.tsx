@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../../application/auth/AuthContext";
 import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useState } from "react";
 

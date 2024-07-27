@@ -1,23 +1,23 @@
 import React, { useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import Dashboard from "./pages/dashboard/Dashboard";
+import Dashboard from "./presentation/pages/dashboard/Dashboard";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Login from "./pages/Login";
-import { AuthProvider, useAuth } from "./auth/AuthContext";
-import UsersManagemenPage from "./pages/Users";
-import Sidebar from "./components/SideBar";
-import MyProfilePage from "./pages/Profile";
+import Login from "./presentation/pages/Login";
+import { AuthProvider, useAuth } from "./application/auth/AuthContext";
+import Sidebar from "./presentation/components/SideBar";
+import MyProfilePage from "./presentation/pages/Profile";
 import { Menu } from "lucide-react";
-import RoleManagementPage from "./pages/RoleManagement";
-import ReportsAnalyticsPage from "./pages/Reports";
-import EquipmentManagementPage from "./pages/EquipmentsManagement";
-import SystemSettingsPage from "./pages/SystemSettings";
-import LogsPage from "./pages/Logs";
-import TimesheetPage from "./pages/Timesheet";
-import EquipmentLogPage from "./pages/EquipmentsLogs";
-import MaintenanceLogsPage from "./pages/MaintenanceLogs";
-import MaintenanceManagementPage from "./pages/MaintenanceManagement";
-import GroupsPage from "./pages/groups";
+import RoleManagementPage from "./presentation/pages/RoleManagement";
+import ReportsAnalyticsPage from "./presentation/pages/Reports";
+import EquipmentManagementPage from "./presentation/pages/EquipmentsManagement";
+import SystemSettingsPage from "./presentation/pages/SystemSettings";
+import LogsPage from "./presentation/pages/Logs";
+import TimesheetPage from "./presentation/pages/Timesheet";
+import EquipmentLogPage from "./presentation/pages/EquipmentsLogs";
+import MaintenanceLogsPage from "./presentation/pages/MaintenanceLogs";
+import MaintenanceManagementPage from "./presentation/pages/MaintenanceManagement";
+import GroupsPage from "./presentation/pages/groups";
+import UsersManagementPage from "./presentation/pages/Users";
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
     const { user, isLoading } = useAuth();
@@ -99,7 +99,7 @@ function App() {
                             path="/users"
                             element={
                                 <ProtectedRoute>
-                                    <UsersManagemenPage />
+                                    <UsersManagementPage />
                                 </ProtectedRoute>
                             }
                         />

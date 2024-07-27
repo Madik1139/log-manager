@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Edit, Plus, X, Search } from "lucide-react";
-import { adminPermissions, allPermissions, managerPermissions, operatorPermissions } from "../data/data";
-import { Irole } from "../models/types";
+import { adminPermissions, allPermissions, managerPermissions, operatorPermissions } from "../../data/data";
+import { Irole } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
+import { generateUID } from "../../application/utils/utils";
 
 const Modal: React.FC<{
     isOpen: boolean;
@@ -41,16 +42,19 @@ const RoleManagementPage = () => {
             if (count === 0) {
                 await db.roles.bulkAdd([
                     {
+                        uid: generateUID(),
                         name: "Admin",
                         permissions: adminPermissions
                         ,
                     },
                     {
+                        uid: generateUID(),
                         name: "Manager",
                         permissions: managerPermissions
                         ,
                     },
                     {
+                        uid: generateUID(),
                         name: "Operator",
                         permissions: operatorPermissions
                         ,
@@ -88,7 +92,7 @@ const RoleManagementPage = () => {
     };
 
     const handleAdd = () => {
-        setEditingRole({ name: "", permissions: [] });
+        setEditingRole({ uid: "", name: "", permissions: [] });
         setIsModalOpen(true);
     };
 
@@ -181,6 +185,11 @@ const RoleManagementPage = () => {
                             ))}
                         </tbody>
                     </table>
+                    {filteredRoles.length === 0 && (
+                        <p className="text-center text-gray-500 text-lg mt-4">
+                            No roles found
+                        </p>
+                    )}
                 </div>
             </div>
 

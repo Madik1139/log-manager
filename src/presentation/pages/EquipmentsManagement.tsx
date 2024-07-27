@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Edit, Trash2, X, ChevronLeft } from "lucide-react";
-import { IEquipment, Role } from "../models/types";
-import { useAuth } from "../auth/AuthContext";
+import { IEquipment, Role } from "../../domain/entities/Types";
+import { useAuth } from "../../application/auth/AuthContext";
 import EquipmentLogPage from "./EquipmentsLogs";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
+import { debugLog, generateUID } from "../../application/utils/utils";
 
 const EquipmentManagementPage = () => {
     // const [equipment, setEquipment] = useState(initialEquipment);
@@ -44,7 +45,7 @@ const EquipmentManagementPage = () => {
         if (showAddModal) {
             try {
                 const id = await db.equipments.add(updatedEquipment);
-                console.log(`Eqipment added with id ${id}`);
+                debugLog(`Eqipment added with id ${id}`);
                 setShowAddModal(false);
             } catch (error) {
                 console.error(`Failed to add equipment: ${error}`);
@@ -56,7 +57,7 @@ const EquipmentManagementPage = () => {
                         updatedEquipment.id,
                         updatedEquipment
                     );
-                    console.log(`Eqipment added with id ${id}`);
+                    debugLog(`Eqipment added with id ${id}`);
                     setIsEditing(false);
                 } catch (error) {
                     console.error(`Failed to add equipment: ${error}`);
@@ -69,9 +70,7 @@ const EquipmentManagementPage = () => {
     };
 
     const handleDelete = async (id: number) => {
-        if (
-            window.confirm("Are you sure you want to delete this equipment?")
-        ) {
+        if (window.confirm("Are you sure you want to delete this equipment?")) {
             try {
                 await db.equipments.delete(id);
                 setSelectedEquipment(null);
@@ -101,6 +100,7 @@ const EquipmentManagementPage = () => {
             const count = await db.equipments.count();
             if (count === 0) {
                 await db.equipments.add({
+                    uid: generateUID(),
                     name: "Grader A",
                     type: "Heavy Machinery",
                     status: "Normal",
@@ -204,6 +204,11 @@ const EquipmentManagementPage = () => {
                                     </p>
                                 </div>
                             ))}
+                            {filteredEquipment?.length === 0 && (
+                                <p className="text-center text-gray-500 text-lg mt-20">
+                                    No equipment found
+                                </p>
+                            )}
                         </div>
 
                         <MobileEquipmentList
@@ -431,6 +436,7 @@ const AddEquipmentModal = ({
     onClose: () => void;
 }) => {
     const [formData, setFormData] = useState<IEquipment>({
+        uid: "",
         name: "",
         type: "",
         status: "Normal",

@@ -13,6 +13,7 @@ import {
     Cell,
 } from "recharts";
 import { Download } from "lucide-react";
+import { debugLog } from "../../application/utils/utils";
 
 const ReportsAnalyticsPage = () => {
     const [startDate, setStartDate] = useState("2024-07-01");
@@ -42,7 +43,7 @@ const ReportsAnalyticsPage = () => {
             setEndDate(e.target.value);
         }
         // Here you would typically fetch new data based on the selected date range
-        console.log("Date range changed:", e.target.name, e.target.value);
+        debugLog("Date range changed:", e.target.name, e.target.value);
     };
 
     return (

@@ -9,7 +9,8 @@ import {
     Legend,
 } from "recharts";
 import { Download, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { dummyLogs } from "../data/data";
+import { dummyLogs } from "../../data/data";
+import { debugLog } from "../../application/utils/utils";
 
 interface ActivityData {
     date: string;
@@ -66,7 +67,7 @@ const LogsPage = () => {
     }, []);
 
     const handleApplyDateRange = (): void => {
-        console.log("Applying date range:", startDate, "to", endDate);
+        debugLog("Applying date range:", startDate, "to", endDate);
         // Here you would typically fetch new data based on the date range
     };
 

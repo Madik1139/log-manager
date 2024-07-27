@@ -8,6 +8,7 @@ export interface ILog {
 
 export interface IUser {
     id?: number;
+    uid: string;
     name?: string;
     email?: string;
     role: Role;
@@ -16,6 +17,7 @@ export interface IUser {
 
 export interface IEquipment {
     id?: number;
+    uid: string;
     name: string;
     type: string;
     status: string;
@@ -26,6 +28,7 @@ export interface IEquipment {
 
 export interface IMaintenance {
     id?: number;
+    uid: string;
     date: string;
     machine: string;
     issue: string;
@@ -36,6 +39,7 @@ export interface IMaintenance {
 
 export interface ITimesheet {
     id?: number;
+    uid: string;
     activity: string;
     timeMachineStart: number;
     timeMachineEnd: number;
@@ -49,12 +53,14 @@ export interface ITimesheet {
 
 export interface Irole {
     id?: number;
+    uid: string;
     name: string;
     permissions: string[];
 }
 
 export interface Ivendor {
     id?: number;
+    uid: string;
     name: string;
     category: string;
     status: VendorStatus;
@@ -62,6 +68,7 @@ export interface Ivendor {
 
 export interface IMCUData {
     id?: number;
+    uid: string;
     data1: string;
     data2: string;
     data3: string;

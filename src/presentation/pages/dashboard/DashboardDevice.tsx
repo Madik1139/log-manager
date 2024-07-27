@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { IMCUData } from "../../models/types";
-import db from "../../models/DexieDB";
+import { IMCUData } from "../../../domain/entities/Types";
+import db from "../../../infrastructure/db/DexieDB";
+import { debugLog } from "../../../application/utils/utils";
 
 function DashboardDevice() {
     const [newEntry, setNewEntry] = useState<IMCUData>({
+        uid: "",
         data1: "",
         data2: "",
         data3: "",
@@ -19,8 +21,9 @@ function DashboardDevice() {
     const handleAddEntry = async () => {
       try {
           const id = await db.mcuData.add(newEntry);
-          console.log("Timesheet added successfully with ID:", id);
+          debugLog("Timesheet added successfully with ID:", id);
           setNewEntry({
+              uid: "",
               data1: "",
               data2: "",
               data3: "",

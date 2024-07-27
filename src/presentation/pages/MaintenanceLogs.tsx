@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { Search, Filter, Download, PlusCircle, X } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import { IMaintenance, MaintenanceStatus, Priority, Role } from "../models/types";
+import { useAuth } from "../../application/auth/AuthContext";
+import { IMaintenance, MaintenanceStatus, Priority, Role } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
+import { debugLog } from "../../application/utils/utils";
 
 const MaintenanceLogsPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterDate, setFilterDate] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newRecord, setNewRecord] = useState<IMaintenance>({
+        uid: "",
         date: "",
         machine: "",
         issue: "",
@@ -34,9 +36,10 @@ const MaintenanceLogsPage = () => {
         e.preventDefault();
         try {
             const id = await db.maintenance.add(newRecord);
-            console.log("Record added successfully with ID:", id);
+            debugLog("Record added successfully with ID:", id);
             setIsModalOpen(false);
             setNewRecord({
+                uid: "",
                 date: "",
                 machine: "",
                 issue: "",

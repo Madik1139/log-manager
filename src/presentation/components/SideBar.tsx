@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, User, X } from "lucide-react";
-import { Role } from "../models/types";
-import { useAuth } from "../auth/AuthContext";
-import { menuItems } from "../data/data";
+import { Role } from "../../domain/entities/Types";
+import { useAuth } from "../../application/auth/AuthContext";
+import { menuItems } from "../../data/data";
 
 interface SidebarProps {
     isOpen: boolean;

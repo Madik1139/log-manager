@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { ITimesheet } from "../models/types";
+import { ITimesheet } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
+import { debugLog, generateUID } from "../../application/utils/utils";
 
 const TimesheetPage = () => {
     const [selectedEquipment, setSelectedEquipment] = useState("Excavator");
     const [newEntry, setNewEntry] = useState<ITimesheet>({
+        uid: "",
         activity: "",
         timeMachineStart: 0,
         timeMachineEnd: 0,
@@ -30,8 +32,9 @@ const TimesheetPage = () => {
     const handleAddEntry = async () => {
         try {
             const id = await db.timesheet.add(newEntry);
-            console.log("Timesheet added successfully with ID:", id);
+            debugLog("Timesheet added successfully with ID:", id);
             setNewEntry({
+                uid: "",
                 activity: "",
                 timeMachineStart: 0,
                 timeMachineEnd: 0,
@@ -53,6 +56,7 @@ const TimesheetPage = () => {
             const count = await db.timesheet.count();
             if (count === 0) {
                 await db.timesheet.add({
+                    uid: generateUID(),
                     activity: "Work",
                     timeMachineStart: 105,
                     timeMachineEnd: 107,

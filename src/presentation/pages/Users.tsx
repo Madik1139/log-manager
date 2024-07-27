@@ -1,122 +1,124 @@
 import { useState, useEffect } from "react";
 import { UserPlus, Edit, Trash2, Search } from "lucide-react";
-import { Role, IUser } from "../models/types";
-import db from "../models/DexieDB";
+import { UserUseCases } from "../../domain/usecases/UserUseCases";
+import { IUser, Role } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import { debugLog } from "../utils/debugUtils";
-
-const Modal = ({ isOpen, title, children }: any) => {
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white p-4 rounded-lg w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">{title}</h2>
-                {children}
-            </div>
-        </div>
-    );
-};
+import { debugLog, generateUID, initializedDB } from "../../application/utils/utils";
+import { IndexedDBDataSource } from "../../data/datasources/IndexedDBDataSource";
+import { UserRepository } from "../../data/repositories/UserRepository";
+import Modal from "../components/ModalUser";
 
 const UsersManagementPage = () => {
-    const [editingUser, setEditingUser] = useState<IUser | null>(null);
+    const [userUseCases, setUserUseCases] = useState<UserUseCases | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [newUser, setNewUser] = useState<IUser>({
+        uid: "",
         name: "",
         email: "",
         role: Role.Operator,
     });
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<IUser | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState<Role | "all">("all");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-    const users = useLiveQuery(() => {
-        if (searchTerm === "" && roleFilter === "all") {
-            return db.users.toArray();
-        } else if (searchTerm === "") {
-            return db.users.where("role").equals(roleFilter).toArray();
-        } else if (roleFilter === "all") {
-            return db.users
-                .where("name")
-                .startsWithIgnoreCase(searchTerm)
-                .or("email")
-                .startsWithIgnoreCase(searchTerm)
-                .toArray();
-        } else {
-            return db.users
-                .where("[role+name]")
-                .between([roleFilter, searchTerm], [roleFilter, searchTerm + '\uffff'])
-                .or("[role+email]")
-                .between([roleFilter, searchTerm], [roleFilter, searchTerm + '\uffff'])
-                .toArray();
+    useEffect(() => {
+        const initDB = async () => {
+            try {
+                initializedDB();
+                const dataSource = new IndexedDBDataSource();
+                const userRepository = new UserRepository(dataSource);
+                setUserUseCases(userRepository);
+                await loadUsers(userRepository);
+            } catch (error) {
+                console.error("Can't initializing database:", error);
+            }
+        };
+        initDB();
+    }, []);
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => {
+            clearTimeout(timerId);
+        };
+    }, [searchTerm]);
+
+    const loadUsers = async (repository: UserUseCases) => {
+        try {
+            const fetchedUsers = await repository.getUsers();
+            if (fetchedUsers.length === 0) {
+                const defaultUser: IUser = {
+                    uid: generateUID(),
+                    name: "Admin",
+                    email: "admin@example.com",
+                    role: Role.Admin,
+                };
+                await repository.addUser(defaultUser);
+                debugLog("Default admin user created");
+            }
+        } catch (error) {
+            console.error("Error loading users:", error);
+            // Handle error (e.g., show error message to user)
         }
-    }, [searchTerm, roleFilter]);
-    
-    debugLog("Users:", users);
+    };
+
+    const users = useLiveQuery(
+        () => userUseCases?.searchUsers(debouncedSearchTerm, roleFilter),
+        [userUseCases, debouncedSearchTerm, roleFilter]
+    );
+
+    const handleAddUser = async () => {
+        if (!userUseCases) return;
+        try {
+            const userToAdd = {
+                ...newUser,
+                uid: generateUID(), // Ensure UID is always generated
+            };
+            await userUseCases.addUser(userToAdd);
+            setIsAddModalOpen(false);
+            setNewUser({ uid: "", name: "", email: "", role: Role.Operator });
+        } catch (error: any) {
+            console.error("Error adding user:", error);
+            alert(`Failed to add user: ${error.message}`);
+        }
+    };
+
+    const handleUpdateUser = async () => {
+        if (editingUser && userUseCases) {
+            try {
+                await userUseCases.updateUser(editingUser);
+                setIsEditModalOpen(false);
+                setEditingUser(null);
+            } catch (error: any) {
+                console.error("Error updating user:", error);
+                alert(error.message);
+            }
+        }
+    };
+
+    const handleDeleteUser = async (userId: number) => {
+        if (!userUseCases) return;
+        try {
+            if (window.confirm("Are you sure you want to delete this user?")) {
+                await userUseCases.deleteUser(userId);
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            // Handle error (e.g., show error message to user)
+        }
+    };
 
     const handleEdit = (user: IUser) => {
         setEditingUser({ ...user });
         setIsEditModalOpen(true);
     };
 
-    const handleSave = async () => {
-        if (editingUser?.id) {
-            try {
-                await db.users.update(editingUser.id, editingUser);
-                setEditingUser(null);
-                setIsEditModalOpen(false);
-            } catch (error) {
-                console.error(`Failed to update user: ${error}`);
-                // TODO: Implement user-facing error message
-            }
-        }
-    };
-
-    const handleDelete = async (userId: number) => {
-        if (window.confirm("Are you sure you want to delete this user?")) {
-            try {
-                await db.users.delete(userId);
-            } catch (error) {
-                console.error(`Failed to delete user: ${error}`);
-                // TODO: Implement user-facing error message
-            }
-        }
-    };
-
-    const handleAddUser = async () => {
-        if (newUser.name && newUser.email) {
-            try {
-                const id = await db.users.add(newUser);
-                console.log(`User added with id ${id}`);
-                setIsAddModalOpen(false);
-                setNewUser({
-                    name: "",
-                    email: "",
-                    role: Role.Operator,
-                });
-            } catch (error) {
-                console.error(`Failed to add user: ${error}`);
-                // TODO: Implement user-facing error message
-            }
-        } else {
-            console.error("Name and email are required");
-            // TODO: Implement user-facing error message
-        }
-    };
-
-    useEffect(() => {
-        const initDB = async () => {
-            const count = await db.users.count();
-            if (count === 0) {
-                await db.users.add({
-                    name: "Admin",
-                    email: "admin@example.com",
-                    role: Role.Admin,
-                });
-            }
-        };
-        initDB();
-    }, []);
+    debugLog("Users:", users);
 
     return (
         <div>
@@ -171,8 +173,15 @@ const UsersManagementPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {users?.map((user) => (
-                                <tr key={user.id}>
+                            {users?.map((user, index) => (
+                                <tr
+                                    key={user.id}
+                                    className={
+                                        index % 2 === 0
+                                            ? "bg-white"
+                                            : "bg-gray-50"
+                                    }
+                                >
                                     <td className="border p-2">{user.name}</td>
                                     <td className="border p-2">{user.email}</td>
                                     <td className="border p-2">{user.role}</td>
@@ -187,7 +196,9 @@ const UsersManagementPage = () => {
                                             <button
                                                 onClick={() =>
                                                     user.id !== undefined
-                                                        ? handleDelete(user.id)
+                                                        ? handleDeleteUser(
+                                                              user.id
+                                                          )
                                                         : null
                                                 }
                                                 className="bg-red-500 text-white p-1 rounded"
@@ -200,6 +211,11 @@ const UsersManagementPage = () => {
                             ))}
                         </tbody>
                     </table>
+                    {users?.length === 0 && (
+                        <p className="text-center text-gray-500 text-lg mt-4">
+                            No users found
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -290,7 +306,7 @@ const UsersManagementPage = () => {
                 </select>
                 <div className="flex justify-end space-x-2">
                     <button
-                        onClick={handleSave}
+                        onClick={handleUpdateUser}
                         className="bg-green-500 text-white px-4 py-2 rounded"
                     >
                         Save Changes

@@ -9,12 +9,12 @@ import {
 } from "recharts";
 import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { chartData, features, metrics } from "../../data/data";
+import { chartData, features, metrics } from "../../../data/data";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../../application/auth/AuthContext";
 import DashboardManager from "./DashboardManager";
 import DashboardDevice from "./DashboardDevice";
-import { Role } from "../../models/types";
+import { Role } from "../../../domain/entities/Types";
 
 const Dashboard = () => {
     const [systemStatus, setSystemStatus] = useState("healthy");

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Search, Filter, Download } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import { Role } from "../models/types";
+import { useAuth } from "../../application/auth/AuthContext";
+import { Role } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../models/DexieDB";
+import db from "../../infrastructure/db/DexieDB";
 
 const EquipmentLogPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
