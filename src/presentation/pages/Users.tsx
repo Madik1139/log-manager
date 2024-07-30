@@ -55,7 +55,7 @@ const UsersManagementPage = () => {
                 const defaultUser: IUser = {
                     uid: generateUID(),
                     name: "Admin",
-                    email: "admin@example.com",
+                    email: "admin@email.com",
                     role: Role.Admin,
                 };
                 await repository.addUser(defaultUser);

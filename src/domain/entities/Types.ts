@@ -20,7 +20,7 @@ export interface IEquipment {
     uid: string;
     name: string;
     type: string;
-    status: string;
+    status: EquipmentStatus;
     operator: string;
     lastMaintenance: string;
     duration: string;
@@ -100,6 +100,12 @@ export enum MaintenanceStatus {
 export enum VendorStatus {
     Active = "Active",
     Inactive = "Inactive",
+}
+
+export enum EquipmentStatus {
+    normal = "Normal",
+    under = "Under Maintenance",
+    need = "Need Maintenance",
 }
 
 

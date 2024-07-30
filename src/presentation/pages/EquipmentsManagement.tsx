@@ -1,31 +1,96 @@
-import React, { useEffect, useState } from "react";
-import { Search, Plus, Edit, Trash2, X, ChevronLeft } from "lucide-react";
-import { IEquipment, Role } from "../../domain/entities/Types";
+import { useEffect, useState } from "react";
+import {
+    Search,
+    Plus,
+    Edit,
+    Trash2,
+    ChevronLeft,
+    Filter,
+} from "lucide-react";
+import { EquipmentStatus, IEquipment, Role } from "../../domain/entities/Types";
 import { useAuth } from "../../application/auth/AuthContext";
 import EquipmentLogPage from "./EquipmentsLogs";
 import { useLiveQuery } from "dexie-react-hooks";
-import db from "../../infrastructure/db/DexieDB";
-import { debugLog, generateUID } from "../../application/utils/utils";
+import {
+    debugLog,
+    generateUID,
+    initializedDB,
+} from "../../application/utils/utils";
+import { EquipmentUseCases } from "../../domain/usecases/EquipmentUseCases";
+import { IndexedDBDataSource } from "../../data/datasources/IndexedDBDataSource";
+import { EquipmentRepository } from "../../data/repositories/EquipmentRepository";
+import MobileEquipmentList from "../components/MobileEquipmentList";
+import AddEquipmentModal from "../components/AddEquipmentModal";
+import EditEquipmentForm from "../components/EditEquipmentForm";
+import EquipmentDetails from "../components/EquipmentDetails";
 
 const EquipmentManagementPage = () => {
-    // const [equipment, setEquipment] = useState(initialEquipment);
+    const [equipmentUseCases, setEquipmentUseCases] = useState<EquipmentUseCases | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedEquipment, setSelectedEquipment] =
-        useState<IEquipment | null>(null);
+    const [statusFilter, setStatusFilter] = useState<EquipmentStatus | "all">( "all");
+    const [selectedEquipment, setSelectedEquipment] = useState<IEquipment | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showLogs, setShowLogs] = useState(false);
+    const [showMobileDetails, setShowMobileDetails] = useState(false);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const { user } = useAuth();
     const isAdmin = user?.role === Role.Admin;
-    const [showMobileDetails, setShowMobileDetails] = useState(false);
 
-    const equipments = useLiveQuery(() => db.equipments.toArray(), []) || [];
+    useEffect(() => {
+        const initDB = async () => {
+            try {
+                initializedDB();
+                const dataSource = new IndexedDBDataSource();
+                const equipmentRepository = new EquipmentRepository(dataSource);
+                setEquipmentUseCases(equipmentRepository);
+                await loadEquipments(equipmentRepository);
+            } catch (error) {
+                console.error("Can't initializing database:", error);
+            }
+        };
+        initDB();
+    }, []);
 
-    const filteredEquipment = equipments?.filter(
-        (item) =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.status.toLowerCase().includes(searchTerm.toLowerCase())
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => {
+            clearTimeout(timerId);
+        };
+    }, [searchTerm]);
+
+    const loadEquipments = async (repository: EquipmentUseCases) => {
+        try {
+            const fetchedEquioments = await repository.getEquipments();
+            if (fetchedEquioments.length === 0) {
+                const defaultEquipment: IEquipment = {
+                    uid: generateUID(),
+                    name: "Grader A",
+                    type: "Heavy Machinery",
+                    status: EquipmentStatus.normal,
+                    operator: "John Doe",
+                    lastMaintenance: "2024-06-15",
+                    duration: "11 hours",
+                };
+                await repository.addEquipment(defaultEquipment);
+                debugLog("Default equipment created");
+            }
+        } catch (error) {
+            console.error("Error loading equipments:", error);
+            // Handle error (e.g., show error message to equipment)
+        }
+    };
+
+    const equipments = useLiveQuery(
+        () =>
+            equipmentUseCases?.searchEquipments(
+                debouncedSearchTerm,
+                statusFilter
+            ),
+        [equipmentUseCases, debouncedSearchTerm, statusFilter]
     );
 
     const handleSelectEquipment = (item: IEquipment) => {
@@ -41,43 +106,43 @@ const EquipmentManagementPage = () => {
         setIsEditing(true);
     };
 
-    const handleSave = async (updatedEquipment: IEquipment) => {
-        if (showAddModal) {
-            try {
-                const id = await db.equipments.add(updatedEquipment);
-                debugLog(`Eqipment added with id ${id}`);
-                setShowAddModal(false);
-            } catch (error) {
-                console.error(`Failed to add equipment: ${error}`);
-            }
-        } else {
-            if (updatedEquipment.id !== undefined) {
-                try {
-                    const id = await db.equipments.update(
-                        updatedEquipment.id,
-                        updatedEquipment
-                    );
-                    debugLog(`Eqipment added with id ${id}`);
-                    setIsEditing(false);
-                } catch (error) {
-                    console.error(`Failed to add equipment: ${error}`);
-                }
-            } else {
-                console.error("Equipment id is undefined");
-            }
+    const handleAddEquipment = async (updatedEquipment: IEquipment) => {
+        if (!equipmentUseCases) return;
+        try {
+            const equipmentToAdd = {
+                ...updatedEquipment,
+                uid: generateUID(), // Ensure UID is always generated
+            };
+            await equipmentUseCases.addEquipment(equipmentToAdd);
+            debugLog(`Eqipment added with id ${equipmentToAdd.id}`);
+            setShowAddModal(false);
+        } catch (error: any) {
+            console.error("Error adding equipment:", error);
+            alert(`Failed to add equipment: ${error.message}`);
         }
-        setSelectedEquipment(updatedEquipment);
     };
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm("Are you sure you want to delete this equipment?")) {
+    const handleUpdateEquipment = async (updatedEquipment: IEquipment) => {
+        if (updatedEquipment && equipmentUseCases) {
             try {
-                await db.equipments.delete(id);
-                setSelectedEquipment(null);
-            } catch (error) {
-                console.error(`Failed to delete equipment: ${error}`);
-                // TODO: Implement user-facing error message
+                await equipmentUseCases.updateEquipment(updatedEquipment);
+                setIsEditing(false);
+            } catch (error: any) {
+                console.error("Error updating equipment:", error);
+                alert(error.message);
             }
+        }
+    };
+
+    const handleDeleteEquipment = async (equipment: number) => {
+        if (!equipmentUseCases) return;
+        try {
+            if (window.confirm("Are you sure you want to delete this equipment?")) {
+                await equipmentUseCases.deleteEquipment(equipment);
+            }
+        } catch (error) {
+            console.error("Error deleting equipment:", error);
+            // Handle error (e.g., show error message to equipment)
         }
     };
 
@@ -94,24 +159,6 @@ const EquipmentManagementPage = () => {
         setIsEditing(false);
         setShowMobileDetails(true);
     };
-
-    useEffect(() => {
-        const initDB = async () => {
-            const count = await db.equipments.count();
-            if (count === 0) {
-                await db.equipments.add({
-                    uid: generateUID(),
-                    name: "Grader A",
-                    type: "Heavy Machinery",
-                    status: "Normal",
-                    operator: "John Doe",
-                    lastMaintenance: "2024-06-15",
-                    duration: "11 hours",
-                });
-            }
-        };
-        initDB();
-    }, []);
 
     return (
         <div>
@@ -161,6 +208,35 @@ const EquipmentManagementPage = () => {
                             />
                         </div>
 
+                        <div className="flex-1 relative mb-2 md:mb-0 md:mr-2">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) =>
+                                    setStatusFilter(
+                                        e.target.value as
+                                            | EquipmentStatus
+                                            | "all"
+                                    )
+                                }
+                                className="w-full p-2 pl-8 border rounded appearance-none"
+                            >
+                                <option value="all">All Status</option>
+                                <option value={EquipmentStatus.normal}>
+                                    {EquipmentStatus.normal}
+                                </option>
+                                <option value={EquipmentStatus.need}>
+                                    {EquipmentStatus.need}
+                                </option>
+                                <option value={EquipmentStatus.under}>
+                                    {EquipmentStatus.under}
+                                </option>
+                            </select>
+                            <Filter
+                                className="absolute left-2 top-2.5 text-gray-400"
+                                size={20}
+                            />
+                        </div>
+
                         <button
                             onClick={handleAddNew}
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center"
@@ -174,7 +250,7 @@ const EquipmentManagementPage = () => {
                             <h2 className="text-xl font-semibold mb-4">
                                 Equipment List
                             </h2>
-                            {filteredEquipment?.map((item) => (
+                            {equipments?.map((item) => (
                                 <div
                                     key={item.id}
                                     className={`p-2 mb-2 rounded cursor-pointer bg-gray-100 ${
@@ -204,7 +280,7 @@ const EquipmentManagementPage = () => {
                                     </p>
                                 </div>
                             ))}
-                            {filteredEquipment?.length === 0 && (
+                            {equipments?.length === 0 && (
                                 <p className="text-center text-gray-500 text-lg mt-20">
                                     No equipment found
                                 </p>
@@ -212,7 +288,7 @@ const EquipmentManagementPage = () => {
                         </div>
 
                         <MobileEquipmentList
-                            equipment={filteredEquipment}
+                            equipment={equipments}
                             selectedId={selectedEquipment?.id}
                             onSelect={handleMobileSelect}
                         />
@@ -251,7 +327,7 @@ const EquipmentManagementPage = () => {
                                                         onClick={() =>
                                                             selectedEquipment.id !==
                                                             undefined
-                                                                ? handleDelete(
+                                                                ? handleDeleteEquipment(
                                                                       selectedEquipment.id
                                                                   )
                                                                 : null
@@ -265,9 +341,9 @@ const EquipmentManagementPage = () => {
                                         </div>
                                     </div>
                                     {isEditing ? (
-                                        <EquipmentForm
+                                        <EditEquipmentForm
                                             equipment={selectedEquipment}
-                                            onSave={handleSave}
+                                            onSave={handleUpdateEquipment}
                                             onCancel={() => setIsEditing(false)}
                                         />
                                     ) : (
@@ -286,7 +362,7 @@ const EquipmentManagementPage = () => {
 
                     {showAddModal && (
                         <AddEquipmentModal
-                            onSave={handleSave}
+                            onSave={handleAddEquipment}
                             onClose={() => setShowAddModal(false)}
                         />
                     )}
@@ -297,288 +373,5 @@ const EquipmentManagementPage = () => {
         </div>
     );
 };
-
-const EquipmentDetails = ({ equipment }: any) => (
-    <div>
-        <p>
-            <strong>Name:</strong> {equipment.name}
-        </p>
-        <p>
-            <strong>Operator:</strong> {equipment.operator}
-        </p>
-        <p>
-            <strong>Type:</strong> {equipment.type}
-        </p>
-        <p>
-            <strong>Status:</strong> {equipment.status}
-        </p>
-        <p>
-            <strong>Last Maintenance:</strong> {equipment.lastMaintenance}
-        </p>
-        <div className="w-full md:w-3/4 mt-4">
-            <img
-                src={`https://placehold.co/300x200/EEEEFF/003366?text=Pictures of ${encodeURIComponent(
-                    equipment.name
-                )}`}
-                alt={`${equipment.name} image`}
-                className="w-full h-auto rounded-lg shadow-md"
-            />
-        </div>
-    </div>
-);
-
-const EquipmentForm = ({ equipment, onSave, onCancel }: any) => {
-    const [formData, setFormData] = useState(equipment);
-
-    const handleChange = (e: any) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e: any) => {
-        e.preventDefault();
-        onSave(formData);
-    };
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-                <label className="block mb-1">Name:</label>
-                <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-1">Operator:</label>
-                <input
-                    type="text"
-                    name="operator"
-                    value={formData.operator}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-1">Type:</label>
-                <input
-                    type="text"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-1">Status:</label>
-                <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
-                >
-                    <option value="Normal">Normal</option>
-                    <option value="Under Maintenance">Under Maintenance</option>
-                    <option value="Need Maintenance">Need Maintenance</option>
-                </select>
-            </div>
-            <div className="mb-4">
-                <label className="block mb-1">Last Maintenance:</label>
-                <input
-                    type="date"
-                    name="lastMaintenance"
-                    value={formData.lastMaintenance}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block mb-1">Upload image:</label>
-                <input
-                    type="file"
-                    name="file"
-                    accept="image/*"
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                />
-            </div>
-            <div className="flex justify-end">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 mr-2"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                    Save
-                </button>
-            </div>
-        </form>
-    );
-};
-
-const AddEquipmentModal = ({
-    onSave,
-    onClose,
-}: {
-    onSave: (equipment: IEquipment) => void;
-    onClose: () => void;
-}) => {
-    const [formData, setFormData] = useState<IEquipment>({
-        uid: "",
-        name: "",
-        type: "",
-        status: "Normal",
-        operator: "",
-        lastMaintenance: "",
-        duration: "8 hours",
-    });
-
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(formData);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg w-full max-w-md">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Add New Equipment</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <X size={24} />
-                    </button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block mb-1">Name:</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-1">Operator:</label>
-                        <input
-                            type="text"
-                            name="operator"
-                            value={formData.operator}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-1">Type:</label>
-                        <input
-                            type="text"
-                            name="type"
-                            value={formData.type}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-1">Status:</label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        >
-                            <option value="Normal">Normal</option>
-                            <option value="Under Maintenance">
-                                Under Maintenance
-                            </option>
-                            <option value="Need Maintenance">
-                                Need Maintenance
-                            </option>
-                        </select>
-                    </div>
-                    <div className="mb-4">
-                        <label className="block mb-1">Last Maintenance:</label>
-                        <input
-                            type="date"
-                            name="lastMaintenance"
-                            value={formData.lastMaintenance}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 mr-2"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        >
-                            Save
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-// New component for mobile view
-const MobileEquipmentList = ({ equipment, selectedId, onSelect }: any) => (
-    <div className="md:hidden bg-white p-2 mb-5 rounded">
-        {equipment.map((item: any) => (
-            <div
-                key={item.id}
-                className={`p-2 mb-2 rounded cursor-pointer bg-gray-100 ${
-                    selectedId === item.id ? "bg-gray-300" : "hover:bg-gray-200"
-                }`}
-                onClick={() => onSelect(item)}
-            >
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-600">{item.type}</p>
-                <p
-                    className={`text-sm font-semibold ${
-                        item.status === "Normal"
-                            ? "text-green-600"
-                            : item.status === "Need Maintenance"
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                    }`}
-                >
-                    {item.status}
-                </p>
-            </div>
-        ))}
-    </div>
-);
 
 export default EquipmentManagementPage;

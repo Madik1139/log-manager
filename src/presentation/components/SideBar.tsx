@@ -104,7 +104,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     return (
         <div>
             <div
-                className={`fixed inset-y-0 left-0 z-10 w-64 bg-white text-gray-900 h-screen p-4 flex flex-col justify-between shadow-lg transform ${
+                className={`fixed inset-y-0 left-0 z-10 w-64 bg-white text-gray-900 h-screen p-4 flex flex-col justify-between shadow-lg overflow-y-scroll transform ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 } transition-transform duration-300 ease-in-out md:translate-x-0`}
             >

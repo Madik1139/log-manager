@@ -1,5 +1,5 @@
 import db from "../../infrastructure/db/DexieDB";
-import { IUser, IEquipment, Role } from "../../domain/entities/Types";
+import { IUser, IEquipment, Role, EquipmentStatus } from "../../domain/entities/Types";
 
 export class IndexedDBDataSource {
     async getUsers(): Promise<IUser[]> {
@@ -67,4 +67,23 @@ export class IndexedDBDataSource {
     async deleteEquipment(equipmentId: number): Promise<void> {
         await db.equipments.delete(equipmentId);
     }
+
+    async searchEquipments(searchTerm: string, status: EquipmentStatus | "all"): Promise<IEquipment[]> {
+        const lowercaseSearchTerm = searchTerm.toLowerCase();
+    
+        if (searchTerm === "" && status === "all") {
+            return db.equipments.toArray();
+        } else if (searchTerm === "") {
+            return db.equipments.where("status").equals(status).toArray();
+        } else {
+            let query = db.equipments.where("name").startsWithIgnoreCase(lowercaseSearchTerm)
+                .or("operator").startsWithIgnoreCase(lowercaseSearchTerm);
+    
+            if (status !== "all") {
+                query = query.and((item) => item.status === status);
+            }
+    
+            return query.toArray();
+        }
+    }    
 }

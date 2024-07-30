@@ -1,5 +1,5 @@
 import { EquipmentUseCases } from '../../domain/usecases/EquipmentUseCases';
-import { IEquipment } from '../../domain/entities/Types';
+import { EquipmentStatus, IEquipment } from '../../domain/entities/Types';
 import { IndexedDBDataSource } from '../datasources/IndexedDBDataSource';
 
 export class EquipmentRepository implements EquipmentUseCases {
@@ -23,5 +23,9 @@ export class EquipmentRepository implements EquipmentUseCases {
 
     async deleteEquipment(equipmentId: number): Promise<void> {
         await this.dataSource.deleteEquipment(equipmentId);
+    }
+
+    async searchEquipments(searchTerm: string, status: EquipmentStatus | "all"): Promise<IEquipment[]> {
+        return this.dataSource.searchEquipments(searchTerm, status);
     }
 }

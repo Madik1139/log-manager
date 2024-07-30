@@ -1,4 +1,4 @@
-import { IEquipment } from '../entities/Types';
+import { EquipmentStatus, IEquipment } from '../entities/Types';
 
 export interface EquipmentUseCases {
     getEquipments(): Promise<IEquipment[]>;
@@ -6,4 +6,5 @@ export interface EquipmentUseCases {
     addEquipment(equipment: IEquipment): Promise<number>;
     updateEquipment(equipment: IEquipment): Promise<void>;
     deleteEquipment(equipmentId: number): Promise<void>;
+    searchEquipments(searchTerm: string, status: EquipmentStatus | 'all'): Promise<IEquipment[]>;
 }
