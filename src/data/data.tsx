@@ -15,7 +15,8 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
-import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../domain/entities/Types";
+// import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../domain/entities/Types";
+// import { generateUID } from "../application/utils/utils";
 
 export const menuItems = {
     admin: [
@@ -292,26 +293,26 @@ export const dummyLogs = [
     },
 ];
 
-export const dummyUsers = [
-    {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-        role: Role.Operator,
-    },
-    {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@example.com",
-        role: Role.Admin,
-    },
-    {
-        id: 3,
-        name: "Bob Johnson",
-        email: "bob@example.com",
-        role: Role.Manager,
-    },
-];
+// export const dummyUsers = [
+//     {
+//         id: 1,
+//         name: "John Doe",
+//         email: "john@example.com",
+//         role: Role.Operator,
+//     },
+//     {
+//         id: 2,
+//         name: "Jane Smith",
+//         email: "jane@example.com",
+//         role: Role.Admin,
+//     },
+//     {
+//         id: 3,
+//         name: "Bob Johnson",
+//         email: "bob@example.com",
+//         role: Role.Manager,
+//     },
+// ];
 
 export const allPermissions = [
     "Full Access",
@@ -358,167 +359,176 @@ export const operatorPermissions = [
     "View Personal Profile",
 ]
 
-export const dummyEquipments = [
-    {
-        id: 1,
-        date: "2024-07-19",
-        machine: "Machine A",
-        duration: "8 hours",
-        status: "Normal",
-        operator: "John Doe",
-    },
-    {
-        id: 2,
-        date: "2024-07-18",
-        machine: "Machine B",
-        duration: "6 hours",
-        status: "Needs Maintenance",
-        operator: "Jane Smith",
-    },
-    {
-        id: 3,
-        date: "2024-07-17",
-        machine: "Machine C",
-        duration: "7 hours",
-        status: "Normal",
-        operator: "Mike Johnson",
-    },
-    {
-        id: 4,
-        date: "2024-07-16",
-        machine: "Machine A",
-        duration: "5 hours",
-        status: "Under Repair",
-        operator: "Emily Brown",
-    },
-    {
-        id: 5,
-        date: "2024-07-15",
-        machine: "Machine D",
-        duration: "9 hours",
-        status: "Normal",
-        operator: "Chris Wilson",
-    },
-]
+// export const dummyEquipments = [
+//     {
+//         id: 1,
+//         date: "2024-07-19",
+//         machine: "Machine A",
+//         duration: "8 hours",
+//         status: "Normal",
+//         operator: "John Doe",
+//     },
+//     {
+//         id: 2,
+//         date: "2024-07-18",
+//         machine: "Machine B",
+//         duration: "6 hours",
+//         status: "Needs Maintenance",
+//         operator: "Jane Smith",
+//     },
+//     {
+//         id: 3,
+//         date: "2024-07-17",
+//         machine: "Machine C",
+//         duration: "7 hours",
+//         status: "Normal",
+//         operator: "Mike Johnson",
+//     },
+//     {
+//         id: 4,
+//         date: "2024-07-16",
+//         machine: "Machine A",
+//         duration: "5 hours",
+//         status: "Under Repair",
+//         operator: "Emily Brown",
+//     },
+//     {
+//         id: 5,
+//         date: "2024-07-15",
+//         machine: "Machine D",
+//         duration: "9 hours",
+//         status: "Normal",
+//         operator: "Chris Wilson",
+//     },
+// ]
 
-export const initialEquipment = [
-    {
-        id: 1,
-        name: "Grader A",
-        type: "Heavy Machinery",
-        status: "Normal",
-        operator: "John Doe",
-        lastMaintenance: "2024-06-15",
-    },
-    {
-        id: 2,
-        name: "Grader B",
-        type: "Conveyor System",
-        status: "Under Maintenance",
-        operator: "Jane Smith",
-        lastMaintenance: "2024-07-01",
-    },
-    {
-        id: 3,
-        name: "Excavator",
-        type: "Automation",
-        status: "Need Maintenance",
-        operator: "Mike Johnson",
-        lastMaintenance: "2024-06-30",
-    },
-];
+// export const initialEquipment = [
+//     {
+//         id: 1,
+//         name: "Grader A",
+//         type: "Heavy Machinery",
+//         status: "Normal",
+//         operator: "John Doe",
+//         lastMaintenance: "2024-06-15",
+//     },
+//     {
+//         id: 2,
+//         name: "Grader B",
+//         type: "Conveyor System",
+//         status: "Under Maintenance",
+//         operator: "Jane Smith",
+//         lastMaintenance: "2024-07-01",
+//     },
+//     {
+//         id: 3,
+//         name: "Excavator",
+//         type: "Automation",
+//         status: "Need Maintenance",
+//         operator: "Mike Johnson",
+//         lastMaintenance: "2024-06-30",
+//     },
+// ];
 
-export const dummyMaintenance: IMaintenance[] = [
-    {
-        id: 1,
-        date: "2024-07-18",
-        machine: "Machine B",
-        issue: "Unusual noise",
-        description: "The machine is making a loud grinding noise during operation.",
-        priority: Priority.High,
-        status: MaintenanceStatus.Pending,
-    },
-    {
-        id: 2,
-        date: "2024-07-17",
-        machine: "Machine A",
-        issue: "Regular checkup",
-        description: "Scheduled maintenance for routine inspection and tune-up.",
-        priority: Priority.Low,
-        status: MaintenanceStatus.InProgress,
-    },
-    {
-        id: 3,
-        date: "2024-07-16",
-        machine: "Machine D",
-        issue: "Performance degradation",
-        description: "Machine efficiency has decreased by 15% over the past week.",
-        priority: Priority.Medium,
-        status: MaintenanceStatus.Completed,
-    },
-    {
-        id: 4,
-        date: "2024-07-15",
-        machine: "Machine C",
-        issue: "Software update",
-        description: "New firmware version available for improved functionality.",
-        priority: Priority.High,
-        status: MaintenanceStatus.Pending,
-    },
-    {
-        id: 5,
-        date: "2024-07-14",
-        machine: "Machine A",
-        issue: "Oil leak",
-        description: "Small oil leak detected near the main gear assembly.",
-        priority: Priority.Low,
-        status: MaintenanceStatus.InProgress,
-    },
-];
+// export const dummyMaintenance: IMaintenance[] = [
+//     {
+//         id: 1,
+//         uid: generateUID(),
+//         date: "2024-07-18",
+//         machine: "Machine B",
+//         issue: "Unusual noise",
+//         description: "The machine is making a loud grinding noise during operation.",
+//         priority: Priority.High,
+//         status: MaintenanceStatus.Pending,
+//     },
+//     {
+//         id: 2,
+//         uid: generateUID(),
+//         date: "2024-07-17",
+//         machine: "Machine A",
+//         issue: "Regular checkup",
+//         description: "Scheduled maintenance for routine inspection and tune-up.",
+//         priority: Priority.Low,
+//         status: MaintenanceStatus.InProgress,
+//     },
+//     {
+//         id: 3,
+//         uid: generateUID(),
+//         date: "2024-07-16",
+//         machine: "Machine D",
+//         issue: "Performance degradation",
+//         description: "Machine efficiency has decreased by 15% over the past week.",
+//         priority: Priority.Medium,
+//         status: MaintenanceStatus.Completed,
+//     },
+//     {
+//         id: 4,
+//         uid: generateUID(),
+//         date: "2024-07-15",
+//         machine: "Machine C",
+//         issue: "Software update",
+//         description: "New firmware version available for improved functionality.",
+//         priority: Priority.High,
+//         status: MaintenanceStatus.Pending,
+//     },
+//     {
+//         id: 5,
+//         uid: generateUID(),
+//         date: "2024-07-14",
+//         machine: "Machine A",
+//         issue: "Oil leak",
+//         description: "Small oil leak detected near the main gear assembly.",
+//         priority: Priority.Low,
+//         status: MaintenanceStatus.InProgress,
+//     },
+// ];
 
-export const dummyTimesheet: ITimesheet[] = [
-    {
-        activity: "Maintenance Unit",
-        timeMachineStart: 101,
-        timeMachineEnd: 101,
-        timeOperatorStart: "09:53",
-        timeOperatorEnd: "09:55",
-        hours: "00:01",
-        production: 0,
-        speed: 0,
-        quality: "--",
-    },
-    {
-        activity: "Cuci Unit",
-        timeMachineStart: 101,
-        timeMachineEnd: 101,
-        timeOperatorStart: "09:55",
-        timeOperatorEnd: "09:56",
-        hours: "00:01",
-        production: 0,
-        speed: 0,
-        quality: "--",
-    },
-    {
-        activity: "Work",
-        timeMachineStart: 101,
-        timeMachineEnd: 105,
-        timeOperatorStart: "11:48",
-        timeOperatorEnd: "11:48",
-        hours: "01:24",
-        production: 613,
-        speed: 0,
-        quality: "--",
-    },
-    {
-        activity: "Work",
-        timeMachineStart: 105,
-        timeMachineEnd: 107,
-        timeOperatorStart: "16:00",
-        timeOperatorEnd: "16:00",
-        hours: "00:08",
-        production: 613,
-        speed: 0,
-        quality: "--",
-    },
-];
+// export const dummyTimesheet: ITimesheet[] = [
+//     {
+//         uid: generateUID(),
+//         activity: "Maintenance Unit",
+//         timeMachineStart: 101,
+//         timeMachineEnd: 101,
+//         timeOperatorStart: "09:53",
+//         timeOperatorEnd: "09:55",
+//         hours: "00:01",
+//         production: 0,
+//         speed: 0,
+//         quality: "--",
+//     },
+//     {
+//         uid: generateUID(),
+//         activity: "Cuci Unit",
+//         timeMachineStart: 101,
+//         timeMachineEnd: 101,
+//         timeOperatorStart: "09:55",
+//         timeOperatorEnd: "09:56",
+//         hours: "00:01",
+//         production: 0,
+//         speed: 0,
+//         quality: "--",
+//     },
+//     {
+//         uid: generateUID(),
+//         activity: "Work",
+//         timeMachineStart: 101,
+//         timeMachineEnd: 105,
+//         timeOperatorStart: "11:48",
+//         timeOperatorEnd: "11:48",
+//         hours: "01:24",
+//         production: 613,
+//         speed: 0,
+//         quality: "--",
+//     },
+//     {
+//         uid: generateUID(),
+//         activity: "Work",
+//         timeMachineStart: 105,
+//         timeMachineEnd: 107,
+//         timeOperatorStart: "16:00",
+//         timeOperatorEnd: "16:00",
+//         hours: "00:08",
+//         production: 613,
+//         speed: 0,
+//         quality: "--",
+//     },
+// ];
