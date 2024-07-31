@@ -9,7 +9,6 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
-import { Activity, AlertTriangle, Wrench } from "lucide-react";
 
 const data = [
     { name: "Jan", usage: 4000, maintenance: 2400 },
@@ -23,26 +22,249 @@ const data = [
 const DashboardManager = () => {
     const [activeTab, setActiveTab] = useState("overview");
 
+    const totalDistance = 4;
+    const rSegments = [3.5, 5, 4, 4];
+    const chartData = [
+        { name: "Today", working: 60, moving: 20, idle: 15, stop: 5 },
+        { name: "Weekly", working: 55, moving: 25, idle: 15, stop: 5 },
+        { name: "Monthly", working: 50, moving: 30, idle: 15, stop: 5 },
+    ];
+
+    const renderBar = (segments: any[], label: string) => (
+        <div className="w-full flex items-center gap-3">
+            <div className="w-full flex">
+                {segments.map((segment: number, index: number) => (
+                    <div
+                        key={index}
+                        className="h-6 bg-yellow-400 border-r border-black last:border-r-0"
+                        style={{ width: `${(segment / totalDistance) * 100}%` }}
+                    ></div>
+                ))}
+            </div>
+            <div className="text-xs md:text-2xl font-semibold">{label}</div>
+        </div>
+    );
+
     const renderContent = () => {
         switch (activeTab) {
             case "overview":
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <StatCard
-                            title="Total Machinery"
-                            value="156"
-                            icon={<Activity size={30} className="text-blue-500" />}
-                        />
-                        <StatCard
-                            title="Active Maintenance"
-                            value="23"
-                            icon={<Wrench size={30} className="text-green-500" />}
-                        />
-                        <StatCard
-                            title="Critical Issues"
-                            value="3"
-                            icon={<AlertTriangle size={30} className="text-red-500" />}
-                        />
+                    <div>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="col-span-1 lg:col-span-2 bg-white rounded-lg shadow-md border border-gray-200">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h3 className="text-lg font-semibold text-gray-800">
+                                        Equipment Status
+                                    </h3>
+                                </div>
+                                <div className="p-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <StatusCard
+                                            image="/grader.png"
+                                            title="Total Grader"
+                                            value="24/26"
+                                        />
+                                        <StatusCard
+                                            image="/compactor.png"
+                                            title="Total Compactor"
+                                            value="24/26"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-span-1 bg-white rounded-lg shadow-md border border-gray-200">
+                                <div className="p-4 border-b border-gray-200">
+                                    <h3 className="text-lg font-semibold text-gray-800">
+                                        Connectivity Overview
+                                    </h3>
+                                </div>
+                                <div className="p-4">
+                                    <div className="space-y-4">
+                                        <StatItem
+                                            label="With GPS"
+                                            value="26"
+                                            color="bg-green-100 text-green-800"
+                                        />
+                                        <StatItem
+                                            label="Connected SMS"
+                                            value="10"
+                                            color="bg-blue-100 text-blue-800"
+                                        />
+                                        <StatItem
+                                            label="Online 4G"
+                                            value="12"
+                                            color="bg-purple-100 text-purple-800"
+                                        />
+                                        <StatItem
+                                            label="On Maintenance"
+                                            value="4"
+                                            color="bg-yellow-100 text-yellow-800"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 p-4 bg-white rounded-lg shadow-md">
+                            <h3 className="text-2xl font-semibold text-gray-800 mb-5">
+                                Grader Progress
+                            </h3>
+                            <div className="flex items-center gap-3 mb-6">
+                                <img
+                                    src="/grader.png"
+                                    alt="grader image"
+                                    className="w-20 h-auto mb-2"
+                                />
+                                <div className="w-full">
+                                    <div className="mb-3">
+                                        {renderBar(
+                                            new Array(totalDistance).fill(1),
+                                            "P"
+                                        )}
+                                    </div>
+                                    <div>{renderBar(rSegments, "R")}</div>
+                                </div>
+                            </div>
+
+                            <div className="h-64 mb-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={chartData}
+                                        layout="vertical"
+                                        stackOffset="expand"
+                                        margin={{
+                                            top: 10,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <XAxis type="number" hide />
+                                        <YAxis dataKey="name" type="category" />
+                                        <Tooltip
+                                            formatter={(value, name) => [
+                                                `${value}%`,
+                                                name && typeof name === "string"
+                                                    ? name
+                                                          .charAt(0)
+                                                          .toUpperCase() +
+                                                      name.slice(1)
+                                                    : "",
+                                            ]}
+                                            labelFormatter={(label) =>
+                                                `${label} Status`
+                                            }
+                                        />
+                                        <Legend />
+                                        <Bar
+                                            dataKey="working"
+                                            stackId="a"
+                                            fill="#10B981"
+                                            name="Working"
+                                        />
+                                        <Bar
+                                            dataKey="moving"
+                                            stackId="a"
+                                            fill="#F59E0B"
+                                            name="Moving"
+                                        />
+                                        <Bar
+                                            dataKey="idle"
+                                            stackId="a"
+                                            fill="#FBBF24"
+                                            name="Idle"
+                                        />
+                                        <Bar
+                                            dataKey="stop"
+                                            stackId="a"
+                                            fill="#EF4444"
+                                            name="Stop"
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                        
+                        <div className="mt-6 p-4 bg-white rounded-lg shadow-md">
+                            <h3 className="text-2xl font-semibold text-gray-800 mb-5">
+                                Compactor Progress
+                            </h3>
+                            <div className="flex items-center gap-3 mb-6">
+                                <img
+                                    src="/compactor.png"
+                                    alt="compactor image"
+                                    className="w-20 h-auto mb-2"
+                                />
+                                <div className="w-full">
+                                    <div className="mb-3">
+                                        {renderBar(
+                                            new Array(totalDistance).fill(1),
+                                            "P"
+                                        )}
+                                    </div>
+                                    <div>{renderBar(rSegments, "R")}</div>
+                                </div>
+                            </div>
+
+                            <div className="h-64 mb-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={chartData}
+                                        layout="vertical"
+                                        stackOffset="expand"
+                                        margin={{
+                                            top: 10,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <XAxis type="number" hide />
+                                        <YAxis dataKey="name" type="category" />
+                                        <Tooltip
+                                            formatter={(value, name) => [
+                                                `${value}%`,
+                                                name && typeof name === "string"
+                                                    ? name
+                                                          .charAt(0)
+                                                          .toUpperCase() +
+                                                      name.slice(1)
+                                                    : "",
+                                            ]}
+                                            labelFormatter={(label) =>
+                                                `${label} Status`
+                                            }
+                                        />
+                                        <Legend />
+                                        <Bar
+                                            dataKey="working"
+                                            stackId="a"
+                                            fill="#10B981"
+                                            name="Working"
+                                        />
+                                        <Bar
+                                            dataKey="moving"
+                                            stackId="a"
+                                            fill="#F59E0B"
+                                            name="Moving"
+                                        />
+                                        <Bar
+                                            dataKey="idle"
+                                            stackId="a"
+                                            fill="#FBBF24"
+                                            name="Idle"
+                                        />
+                                        <Bar
+                                            dataKey="stop"
+                                            stackId="a"
+                                            fill="#EF4444"
+                                            name="Stop"
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
                     </div>
                 );
             case "logs":
@@ -108,13 +330,32 @@ const DashboardManager = () => {
     );
 };
 
-const StatCard = ({ title, value, icon }: any) => (
-    <div className="bg-white rounded-lg shadow border p-6 flex items-center">
-        <div className="mr-4">{icon}</div>
-        <div>
-            <h3 className="text-lg font-semibold">{title}</h3>
-            <p className="text-3xl font-bold">{value}</p>
+const StatusCard = ({ image, title, value }: any) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center space-x-4">
+        <div className="flex-shrink-0">
+            <img
+                src={image}
+                alt={title}
+                className="w-16 md:w-24 h-auto object-contain"
+            />
         </div>
+        <div>
+            <h4 className="text-sm md:text-base font-medium text-gray-500">
+                {title}
+            </h4>
+            <p className="text-2xl font-bold text-gray-800">{value}</p>
+        </div>
+    </div>
+);
+
+const StatItem = ({ label, value, color }: any) => (
+    <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">{label}</span>
+        <span
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
+        >
+            {value}
+        </span>
     </div>
 );
 
