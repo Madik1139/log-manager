@@ -54,6 +54,12 @@ const RoleSelectionPopup = ({
                     Manager
                 </button>
                 <button
+                    onClick={() => onSelectRole(Role.Contractor)}
+                    className="px-4 py-2 bg-purple-300 text-purple-900 font-bold rounded hover:bg-purple-400"
+                >
+                    Contractor
+                </button>
+                <button
                     onClick={() => onSelectRole(Role.Operator)}
                     className="px-4 py-2 bg-yellow-200 text-yellow-900 font-bold rounded hover:bg-yellow-400"
                 >
@@ -104,7 +110,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
     return (
         <div>
             <div
-                className={`fixed inset-y-0 left-0 z-10 w-64 bg-white text-gray-900 h-screen p-4 flex flex-col justify-between shadow-lg overflow-y-scroll transform ${
+                className={`fixed inset-y-0 left-0 z-10 w-64 bg-white text-gray-900 h-screen p-4 flex flex-col justify-between shadow-lg overflow-y-auto transform ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 } transition-transform duration-300 ease-in-out md:translate-x-0`}
             >

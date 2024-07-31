@@ -51,14 +51,14 @@ export interface ITimesheet {
     quality: string;
 }
 
-export interface Irole {
+export interface IRole {
     id?: number;
     uid: string;
     name: string;
-    permissions: string[];
+    permissions: UsersPermissions[];
 }
 
-export interface Ivendor {
+export interface IVendor {
     id?: number;
     uid: string;
     name: string;
@@ -79,6 +79,7 @@ export interface IMCUData {
 export enum Role {
     Admin = "admin",
     Manager = "manager",
+    Contractor = "contractor",
     Operator = "operator",
     Device = "device",
 }
@@ -108,4 +109,40 @@ export enum EquipmentStatus {
     need = "Need Maintenance",
 }
 
-
+export enum UsersPermissions {
+    My_Profile_Read,
+    My_Profile_Write,
+    Timesheet_InGroup_InManagement_Read,
+    Timesheet_InGroup_InManagement_Write,
+    Maintenance_Request_InGroup_InManagement_Read,
+    Maintenance_Request_InGroupIn_Management_Write,
+    Equipments_Management_InGroup_InManagement_Read,
+    Equipments_Management_InGroup_InManagement_Write,
+    Roles_Management_InGroup_InManagement_Read,
+    Roles_Management_InGroup_InManagement_Write,
+    Users_Management_InGroup_InManagement_Read,
+    Users_Management_InGroup_InManagement_Write,
+    Timesheet_InGroup_Read,
+    Timesheet_InGroup_Write,
+    Maintenance_Request_InGroup_Read,
+    Maintenance_Request_InGroup_Write,
+    Equipments_Management_InGroup_Read,
+    Equipments_Management_InGroup_Write,
+    Roles_Management_InGroup_Read,
+    Roles_Management_InGroup_Write,
+    Users_Management_InGroup_Read,
+    Users_Management_InGroup_Write,
+    Maintenance_Request_Read,
+    Maintenance_Request_Write,
+    Equipments_Management_Read,
+    Equipments_Management_Write,
+    Groups_Management_Read,
+    Groups_Management_Write,
+    Roles_Management_Read,
+    Roles_Management_Write,
+    Users_Management_Read,
+    Users_Management_Write,
+    Logs_Management_Read,
+    Report_Management_Read,
+    Settings_Management_Write,
+}

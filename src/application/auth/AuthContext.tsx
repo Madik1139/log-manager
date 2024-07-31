@@ -1,8 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { IUser, Role } from "../../domain/entities/Types";
+import { IUser, Role, UsersPermissions } from "../../domain/entities/Types";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { generateUID } from "../utils/utils";
+import { hasPermission } from "./Permission";
 
 interface AuthContextType {
     user: IUser | null;
@@ -11,6 +12,7 @@ interface AuthContextType {
     logout: () => void;
     updateUserRole: (role: Role) => void;
     isLoading: boolean;
+    hasPermissions: (permissions: UsersPermissions | UsersPermissions[]) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
     logout: () => {},
     updateUserRole: () => {},
     isLoading: true,
+    hasPermissions: async () => false,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -116,6 +119,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const checkPermissions = async (permissions: UsersPermissions | UsersPermissions[]): Promise<boolean> => {
+        if (!user) {
+            return false;
+        }
+        
+        if (Array.isArray(permissions)) {
+            return permissions.every(permission => hasPermission(user!.role, permission));
+        } else { 
+            return hasPermission(user!.role, permissions);
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -124,7 +139,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 loginWithGoogle,
                 logout,
                 updateUserRole,
-                isLoading
+                isLoading,
+                hasPermissions: checkPermissions
             }}
         >
             {children}

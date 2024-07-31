@@ -1,5 +1,5 @@
 import db from "../../infrastructure/db/DexieDB";
-import { IUser, IEquipment, Role, EquipmentStatus } from "../../domain/entities/Types";
+import { IUser, IEquipment, Role, EquipmentStatus, IRole } from "../../domain/entities/Types";
 
 export class IndexedDBDataSource {
     async getUsers(): Promise<IUser[]> {
@@ -46,6 +46,7 @@ export class IndexedDBDataSource {
         }
     }
 
+    // Equipments
     async getEquipments(): Promise<IEquipment[]> {
         return db.equipments.toArray();
     }
@@ -86,4 +87,40 @@ export class IndexedDBDataSource {
             return query.toArray();
         }
     }    
+
+    //Roles
+    async getRoles(): Promise<IRole[]> {
+        return db.roles.toArray();
+    }
+
+    async getRoleById(id: number): Promise<IRole | undefined> {
+        return db.roles.get(id);
+    }
+
+    async addRole(role: IRole): Promise<number> {
+        return db.roles.add(role);
+    }
+
+    async updateRole(role: IRole): Promise<void> {
+        if (role.id) {
+            await db.roles.update(role.id, (obj) => {
+                obj.name = role.name;
+                obj.permissions = role.permissions;
+                return true;
+            });
+        }
+    }
+
+    async deleteRole(roleId: number): Promise<void> {
+        await db.roles.delete(roleId);
+    }
+
+    async searchRoles(searchTerm: string): Promise<IRole[]> {
+        return db.roles
+            .where("name")
+            .startsWithIgnoreCase(searchTerm)
+            .or("permissions")
+            .startsWithIgnoreCase(searchTerm)
+            .toArray();
+    }
 }

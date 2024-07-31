@@ -15,7 +15,6 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
-// import { IMaintenance, ITimesheet, MaintenanceStatus, Priority, Role } from "../domain/entities/Types";
 // import { generateUID } from "../application/utils/utils";
 
 export const menuItems = {
@@ -102,6 +101,26 @@ export const menuItems = {
         },
         { id: "profile", icon: User, label: "My Profile", path: "/profile" },
     ],
+    contractor: [
+        {
+            id: "dashboard",
+            icon: LayoutDashboard,
+            label: "Dashboard",
+            path: "/",
+        },
+        {
+            id: "timeshhet",
+            icon: LineChart,
+            label: "Timesheet",
+            path: "/timesheet",
+        },
+        {
+            id: "equipment",
+            icon: Tractor,
+            label: "Equipment",
+            path: "/equipments-management",
+        },
+    ],
     operator: [
         {
             id: "dashboard",
@@ -129,12 +148,14 @@ export const menuItems = {
         },
         { id: "profile", icon: User, label: "My Profile", path: "/profile" },
     ],
-    device: [{
-        id: "dashboard",
-        icon: LayoutDashboard,
-        label: "Dashboard",
-        path: "/",
-    }],
+    device: [
+        {
+            id: "dashboard",
+            icon: LayoutDashboard,
+            label: "Dashboard",
+            path: "/",
+        },
+    ],
 };
 
 export const metrics = {
@@ -314,50 +335,41 @@ export const dummyLogs = [
 //     },
 // ];
 
-export const allPermissions = [
-    "Full Access",
-    "User Management",
-    "Role Management",
-    "Log Management",
-    "Equipment Management",
-    "Maintenance Management",
-    "System Settings",
-    "Report Generation",
-    "View Logs",
-    "Access Maintenance Records",
-    "Add Maintenance",
-    "Access Equipment",
-    "View Personal Profile",
-    "Add/Request Maintenance",
-]
-
-export const adminPermissions = [
-    "Full Access",
-    "User Management",
-    "Role Management",
-    "Log Management",
-    "Equipment Management",
-    "Maintenance Management",
-    "System Settings",
-    "Report Generation",
-]
-
-export const managerPermissions = [
-    "View Logs",
-    "Report Generation",
-    "Access Maintenance Records",
-    "Add Maintenance",
-    "Access Equipment",
-    "View Personal Profile",
-]
-
-export const operatorPermissions = [
-    "View Logs",
-    "Access Equipment Records",
-    "Access Maintenance Records",
-    "Request Maintenance",
-    "View Personal Profile",
-]
+// export const allPermissions = [
+//     "MyProfile_Read",
+//     "MyProfile_Write",
+//     "Timesheet_InGroupInManagementRead",
+//     "Timesheet_InGroupInManagementWrite",
+//     "MaintenanceRequest_InGroupInManagementRead",
+//     "MaintenanceRequest_InGroupInManagementWrite",
+//     "EquipmentsManagement_InGroupInManagementRead",
+//     "EquipmentsManagement_InGroupInManagementWrite",
+//     "RolesManagement_InGroupInManagementRead",
+//     "RolesManagement_InGroupInManagementWrite",
+//     "UsersManagement_InGroupInManagementRead",
+//     "UsersManagement_InGroupInManagementWrite",
+//     "Timesheet_InGroupRead",
+//     "Timesheet_InGroupWrite",
+//     "MaintenanceRequest_InGroupRead",
+//     "MaintenanceRequest_InGroupWrite",
+//     "EquipmentsManagement_InGroupRead",
+//     "EquipmentsManagement_InGroupWrite",
+//     "RolesManagement_InGroupRead",
+//     "RolesManagement_InGroupWrite",
+//     "UsersManagement_InGroupRead",
+//     "UsersManagement_InGroupWrite",
+//     "MaintenanceRequest_Read",
+//     "MaintenanceRequest_Write",
+//     "EquipmentsManagement_Read",
+//     "EquipmentsManagement_Write",
+//     "GroupsManagement_Read",
+//     "GroupsManagement_Write",
+//     "RolesManagement_Read",
+//     "RolesManagement_Write",
+//     "UsersManagement_Read",
+//     "UsersManagement_Write",
+//     "LogsManagement_Read",
+// ];
 
 // export const dummyEquipments = [
 //     {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Dashboard from "./presentation/pages/dashboard/Dashboard";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "./application/auth/AuthContext";
 import Sidebar from "./presentation/components/SideBar";
 import MyProfilePage from "./presentation/pages/Profile";
 import { Menu } from "lucide-react";
-import RoleManagementPage from "./presentation/pages/RoleManagement";
+import RoleManagementPage from "./presentation/pages/RolesManagement";
 import ReportsAnalyticsPage from "./presentation/pages/Reports";
 import EquipmentManagementPage from "./presentation/pages/EquipmentsManagement";
 import SystemSettingsPage from "./presentation/pages/SystemSettings";
@@ -18,17 +18,43 @@ import MaintenanceLogsPage from "./presentation/pages/MaintenanceLogs";
 import MaintenanceManagementPage from "./presentation/pages/MaintenanceManagement";
 import GroupsPage from "./presentation/pages/groups";
 import UsersManagementPage from "./presentation/pages/Users";
+import { UsersPermissions } from "./domain/entities/Types";
+import Unauthorized from "./presentation/pages/Unauthorized";
 
-const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
-    const { user, isLoading } = useAuth();
+interface ProtectedRouteProps {
+    children: React.ReactElement;
+    requiredPermissions?: UsersPermissions | UsersPermissions[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredPermissions }) => {
+    const { user, isLoading, hasPermissions } = useAuth();
     const location = useLocation();
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-    if (isLoading) {
+    useEffect(() => {
+        const checkAuthorization = async () => {
+            if (user && requiredPermissions) {
+                const authorized = await hasPermissions(requiredPermissions);
+                setIsAuthorized(authorized);
+            } else if (user) {
+                setIsAuthorized(true);
+            } else {
+                setIsAuthorized(false);
+            }
+        };
+        checkAuthorization();
+    }, [user, requiredPermissions, hasPermissions]);
+
+    if (isLoading || isAuthorized === null) {
         return <div className="text-center mt-20 text-2xl font-semibold">Loading...</div>;
     }
 
     if (user === null) {
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    if (!isAuthorized) {
+        return <Navigate to="/unauthorized" replace />;
     }
 
     return children;
@@ -78,6 +104,7 @@ function App() {
             <AuthProvider>
                 <AuthWrapper>
                     <Routes>
+                        <Route path="/unauthorized" element={<Unauthorized />} />
                         <Route path="/login" element={<Login />} />
                         <Route
                             path="/"
@@ -90,7 +117,11 @@ function App() {
                         <Route
                             path="/logs"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={
+                                        UsersPermissions.Logs_Management_Read
+                                    }
+                                >
                                     <LogsPage />
                                 </ProtectedRoute>
                             }
@@ -98,7 +129,12 @@ function App() {
                         <Route
                             path="/users"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Users_Management_Read,
+                                        UsersPermissions.Users_Management_Write,
+                                    ]}
+                                >
                                     <UsersManagementPage />
                                 </ProtectedRoute>
                             }
@@ -114,7 +150,12 @@ function App() {
                         <Route
                             path="/roles"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Roles_Management_Read,
+                                        UsersPermissions.Roles_Management_Write,
+                                    ]}
+                                >
                                     <RoleManagementPage />
                                 </ProtectedRoute>
                             }
@@ -122,7 +163,11 @@ function App() {
                         <Route
                             path="/reports"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={
+                                        UsersPermissions.Report_Management_Read
+                                    }
+                                >
                                     <ReportsAnalyticsPage />
                                 </ProtectedRoute>
                             }
@@ -130,7 +175,16 @@ function App() {
                         <Route
                             path="/equipments-management"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Equipments_Management_Read,
+                                        UsersPermissions.Equipments_Management_Write,
+                                        UsersPermissions.Equipments_Management_InGroup_Read,
+                                        UsersPermissions.Equipments_Management_InGroup_Write,
+                                        UsersPermissions.Equipments_Management_InGroup_InManagement_Read,
+                                        UsersPermissions.Equipments_Management_InGroup_InManagement_Write,
+                                    ]}
+                                >
                                     <EquipmentManagementPage />
                                 </ProtectedRoute>
                             }
@@ -138,7 +192,11 @@ function App() {
                         <Route
                             path="/settings"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={
+                                        UsersPermissions.Settings_Management_Write
+                                    }
+                                >
                                     <SystemSettingsPage />
                                 </ProtectedRoute>
                             }
@@ -146,7 +204,14 @@ function App() {
                         <Route
                             path="/timesheet"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Timesheet_InGroup_Read,
+                                        UsersPermissions.Timesheet_InGroup_Write,
+                                        UsersPermissions.Timesheet_InGroup_InManagement_Read,
+                                        UsersPermissions.Timesheet_InGroup_InManagement_Write,
+                                    ]}
+                                >
                                     <TimesheetPage />
                                 </ProtectedRoute>
                             }
@@ -154,7 +219,12 @@ function App() {
                         <Route
                             path="/equipments-logs"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Equipments_Management_Read,
+                                        UsersPermissions.Equipments_Management_Write,
+                                    ]}
+                                >
                                     <EquipmentLogPage />
                                 </ProtectedRoute>
                             }
@@ -162,7 +232,11 @@ function App() {
                         <Route
                             path="/maintenance-logs"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Maintenance_Request_Read,
+                                    ]}
+                                >
                                     <MaintenanceLogsPage />
                                 </ProtectedRoute>
                             }
@@ -170,7 +244,15 @@ function App() {
                         <Route
                             path="/maintenance-management"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Maintenance_Request_Read,
+                                        UsersPermissions.Maintenance_Request_Write,
+                                        UsersPermissions.Maintenance_Request_InGroup_Read,
+                                        UsersPermissions.Maintenance_Request_InGroup_Write,
+                                        UsersPermissions.Maintenance_Request_InGroupIn_Management_Write,
+                                    ]}
+                                >
                                     <MaintenanceManagementPage />
                                 </ProtectedRoute>
                             }
@@ -178,7 +260,12 @@ function App() {
                         <Route
                             path="/groups"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    requiredPermissions={[
+                                        UsersPermissions.Groups_Management_Read,
+                                        UsersPermissions.Groups_Management_Write,
+                                    ]}
+                                >
                                     <GroupsPage />
                                 </ProtectedRoute>
                             }

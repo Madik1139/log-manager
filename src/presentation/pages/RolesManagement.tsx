@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Edit, Plus, X, Search } from "lucide-react";
-import { adminPermissions, allPermissions, managerPermissions, operatorPermissions } from "../../data/data";
-import { Irole } from "../../domain/entities/Types";
+import { IRole, UsersPermissions } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../../infrastructure/db/DexieDB";
 import { generateUID } from "../../application/utils/utils";
+import { permissionToString } from "../../application/auth/Permission";
 
 const Modal: React.FC<{
     isOpen: boolean;
@@ -30,9 +30,10 @@ const Modal: React.FC<{
 
 const RoleManagementPage = () => {
     // const [roles, setRoles] = useState<Irole[]>([]);
-    const [editingRole, setEditingRole] = useState<Irole | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingRole, setEditingRole] = useState<IRole | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const roles = useLiveQuery(() => db.roles.toArray(), []) || [];
 
@@ -43,21 +44,63 @@ const RoleManagementPage = () => {
                 await db.roles.bulkAdd([
                     {
                         uid: generateUID(),
-                        name: "Admin",
-                        permissions: adminPermissions
-                        ,
+                        name: "admin",
+                        permissions: [
+                            UsersPermissions.Maintenance_Request_Read,
+                            UsersPermissions.Maintenance_Request_Write,
+                            UsersPermissions.Equipments_Management_Read,
+                            UsersPermissions.Equipments_Management_Write,
+                            UsersPermissions.Groups_Management_Read,
+                            UsersPermissions.Groups_Management_Write,
+                            UsersPermissions.Roles_Management_Read,
+                            UsersPermissions.Roles_Management_Write,
+                            UsersPermissions.Users_Management_Read,
+                            UsersPermissions.Users_Management_Write,
+                            UsersPermissions.Logs_Management_Read,
+                            UsersPermissions.Report_Management_Read,
+                            UsersPermissions.Settings_Management_Write,
+                        ],
                     },
                     {
                         uid: generateUID(),
-                        name: "Manager",
-                        permissions: managerPermissions
-                        ,
+                        name: "manager",
+                        permissions: [
+                            UsersPermissions.Timesheet_InGroup_Read,
+                            UsersPermissions.Timesheet_InGroup_Write,
+                            UsersPermissions.Maintenance_Request_InGroup_Read,
+                            UsersPermissions.Maintenance_Request_InGroup_Write,
+                            UsersPermissions.Equipments_Management_InGroup_Read,
+                            UsersPermissions.Equipments_Management_InGroup_Write,
+                            UsersPermissions.Roles_Management_InGroup_Read,
+                            UsersPermissions.Roles_Management_InGroup_Write,
+                            UsersPermissions.Users_Management_InGroup_Read,
+                            UsersPermissions.Users_Management_InGroup_Write,
+                            UsersPermissions.Report_Management_Read,
+                        ],
                     },
                     {
                         uid: generateUID(),
-                        name: "Operator",
-                        permissions: operatorPermissions
-                        ,
+                        name: "contractor",
+                        permissions: [
+                            UsersPermissions.Timesheet_InGroup_InManagement_Read,
+                            UsersPermissions.Timesheet_InGroup_InManagement_Write,
+                            UsersPermissions.Maintenance_Request_InGroup_InManagement_Read,
+                            UsersPermissions.Maintenance_Request_InGroupIn_Management_Write,
+                            UsersPermissions.Equipments_Management_InGroup_InManagement_Read,
+                            UsersPermissions.Equipments_Management_InGroup_InManagement_Write,
+                            UsersPermissions.Roles_Management_InGroup_InManagement_Read,
+                            UsersPermissions.Roles_Management_InGroup_InManagement_Write,
+                            UsersPermissions.Users_Management_InGroup_InManagement_Read,
+                            UsersPermissions.Users_Management_InGroup_InManagement_Write,
+                        ],
+                    },
+                    {
+                        uid: generateUID(),
+                        name: "operator",
+                        permissions: [
+                            UsersPermissions.My_Profile_Read,
+                            UsersPermissions.My_Profile_Write,
+                        ],
                     },
                 ]);
             }
@@ -71,6 +114,7 @@ const RoleManagementPage = () => {
             await db.roles.update(editingRole.id, (obj) => {
                 obj.name = editingRole.name;
                 obj.permissions = editingRole.permissions;
+                setIsEditing(false);
                 return true; // return true to indicate that the object has been updated
             });
         } else if (editingRole) {
@@ -86,8 +130,9 @@ const RoleManagementPage = () => {
         }
     };
 
-    const handleEdit = (role: Irole) => {
+    const handleEdit = (role: IRole) => {
         setEditingRole({ ...role });
+        setIsEditing(true);
         setIsModalOpen(true);
     };
 
@@ -159,7 +204,7 @@ const RoleManagementPage = () => {
                                     </td>
                                     <td className="px-5 py-5 border-b border-gray-200 text-sm">
                                         <p className="text-gray-700 whitespace-normal">
-                                            {role.permissions.join(", ")}
+                                        {role.permissions.map(permissionToString).join(", ")}
                                         </p>
                                     </td>
                                     <td className="px-5 py-5 border-b border-gray-200 text-sm">
@@ -193,7 +238,13 @@ const RoleManagementPage = () => {
                 </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setIsEditing(false);
+                }}
+            >
                 <h2 className="text-xl sm:text-2xl font-bold mb-4">
                     {editingRole?.name ? "Edit Role" : "Add New Role"}
                 </h2>
@@ -220,26 +271,17 @@ const RoleManagementPage = () => {
                             Permissions
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {allPermissions.map((perm) => (
+                            {Object.values(UsersPermissions)
+                                .filter(perm => typeof perm === 'number')
+                                .map((perm) => (
                                 <label key={perm} className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={editingRole?.permissions.includes(
-                                            perm
-                                        )}
+                                        checked={editingRole?.permissions.includes(perm as UsersPermissions)}
                                         onChange={() => {
-                                            const updatedPermissions =
-                                                editingRole?.permissions.includes(
-                                                    perm
-                                                )
-                                                    ? editingRole.permissions.filter(
-                                                          (p) => p !== perm
-                                                      )
-                                                    : [
-                                                          ...(editingRole?.permissions ||
-                                                              []),
-                                                          perm,
-                                                      ];
+                                            const updatedPermissions = editingRole?.permissions.includes(perm as UsersPermissions)
+                                                ? editingRole.permissions.filter((p) => p !== perm)
+                                                : [...(editingRole?.permissions || []), perm as UsersPermissions];
                                             setEditingRole({
                                                 ...editingRole!,
                                                 permissions: updatedPermissions,
@@ -247,7 +289,7 @@ const RoleManagementPage = () => {
                                         }}
                                         className="mr-2"
                                     />
-                                    <span className="text-sm">{perm}</span>
+                                    <span className="text-sm">{permissionToString(perm as UsersPermissions)}</span>
                                 </label>
                             ))}
                         </div>
@@ -257,11 +299,14 @@ const RoleManagementPage = () => {
                             type="submit"
                             className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
-                            {editingRole?.name ? "Update" : "Create"} Role
+                            {isEditing ? "Update" : "Create"} Role
                         </button>
                         <button
                             type="button"
-                            onClick={() => setIsModalOpen(false)}
+                            onClick={() => {
+                                setIsModalOpen(false);
+                                setIsEditing(false);
+                            }}
                             className="w-full sm:w-auto px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
                         >
                             Cancel
