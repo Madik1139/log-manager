@@ -6,6 +6,7 @@ import {
     FileText,
     LayoutDashboard,
     LineChart,
+    Map,
     Search,
     Server,
     Settings,
@@ -50,6 +51,12 @@ export const menuItems = {
             path: "/maintenance-management",
         },
         {
+            id: "Projects",
+            icon: Map,
+            label: "Projects",
+            path: "/projects",
+        },
+        {
             id: "logManagement",
             icon: FileText,
             label: "Logs",
@@ -74,6 +81,12 @@ export const menuItems = {
             icon: LayoutDashboard,
             label: "Dashboard",
             path: "/",
+        },
+        {
+            id: "Projects",
+            icon: Map,
+            label: "Projects",
+            path: "/projects",
         },
         {
             id: "timeshhet",

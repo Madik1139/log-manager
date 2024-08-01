@@ -26,7 +26,7 @@ class TimesheetDB extends Dexie {
             vendors: "++id, uid, name, category, status, [name+category], [status+name]",
             equipments: "++id, uid, name, operator, type, status, lastMaintenance",
             maintenance: "++id, uid, date, machine, issue, priority, status, [machine+status], [priority+status]",
-            timesheet: "++id, uid, activity, timeMachineStart, timeMachineEnd, timeOperatorStart, timeOperatorEnd, hours, production, speed, quality, [activity+timeMachineStart]",
+            timesheet: "++id, uid, contractor, eqId, date, hmStart, hmEnd, gps, blade, status",
             mcuData: "++id, uid, data1, data2, data3, data4, data5, [data1+data2]",
         });
     }

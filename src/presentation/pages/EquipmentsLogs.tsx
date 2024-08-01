@@ -9,6 +9,7 @@ const EquipmentLogPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterDate, setFilterDate] = useState("");
     const { user } = useAuth();
+    const isAdmin = user?.role === Role.Admin;
     const isOperator = user?.role === Role.Operator;
 
     const logData = useLiveQuery(() => db.equipments.toArray(), []) || [];
@@ -34,9 +35,12 @@ const EquipmentLogPage = () => {
 
     return (
         <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800">
-                Equipments Logs
-            </h1>
+            {!isAdmin && (
+                <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800">
+                    Equipments Logs
+                </h1>
+            )}
+            
 
             <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex flex-wrap items-center justify-between mb-6">

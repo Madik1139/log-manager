@@ -1,32 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { ITimesheet } from "../../domain/entities/Types";
+import { ITimesheet, TimesheetStatus } from "../../domain/entities/Types";
 import { useLiveQuery } from "dexie-react-hooks";
 import db from "../../infrastructure/db/DexieDB";
 import { debugLog, generateUID } from "../../application/utils/utils";
 
 const TimesheetPage = () => {
-    const [selectedEquipment, setSelectedEquipment] = useState("Excavator");
+    // const [selectedEquipment, setSelectedEquipment] = useState("Excavator");
     const [newEntry, setNewEntry] = useState<ITimesheet>({
         uid: "",
-        activity: "",
-        timeMachineStart: 0,
-        timeMachineEnd: 0,
-        timeOperatorStart: "",
-        timeOperatorEnd: "",
-        hours: "",
-        production: 0,
-        speed: 0,
-        quality: "",
+        contractor: "",
+        eqId: "",
+        date: new Date(),
+        hmStart: 0,
+        hmEnd: 0,
+        gps: "",
+        blade: "",
+        status: "" as TimesheetStatus,
     });
 
     const data = useLiveQuery(() => db.timesheet.toArray(), []) || [];
 
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const equipmentOptions = ["Excavator", "Bulldozer", "Crane", "Loader"];
+    // const equipmentOptions = ["Excavator", "Bulldozer", "Crane", "Loader"];
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
         const { name, value } = e.target;
-        setNewEntry((prev) => ({ ...prev, [name]: value }));
+        setNewEntry((prev) => ({
+            ...prev,
+            [name]: name === "date" ? new Date(value) : value,
+        }));
     };
 
     const handleAddEntry = async () => {
@@ -35,15 +39,14 @@ const TimesheetPage = () => {
             debugLog("Timesheet added successfully with ID:", id);
             setNewEntry({
                 uid: "",
-                activity: "",
-                timeMachineStart: 0,
-                timeMachineEnd: 0,
-                timeOperatorStart: "",
-                timeOperatorEnd: "",
-                hours: "",
-                production: 0,
-                speed: 0,
-                quality: "",
+                contractor: "",
+                eqId: "",
+                date: new Date(),
+                hmStart: 0,
+                hmEnd: 0,
+                gps: "",
+                blade: "",
+                status: "" as TimesheetStatus,
             });
             setIsDialogOpen(false);
         } catch (error) {
@@ -57,15 +60,14 @@ const TimesheetPage = () => {
             if (count === 0) {
                 await db.timesheet.add({
                     uid: generateUID(),
-                    activity: "Work",
-                    timeMachineStart: 105,
-                    timeMachineEnd: 107,
-                    timeOperatorStart: "16:00",
-                    timeOperatorEnd: "16:00",
-                    hours: "00:08",
-                    production: 613,
-                    speed: 0,
-                    quality: "--",
+                    contractor: "Contractor A",
+                    eqId: "MG1",
+                    date: new Date("2024-07-30"),
+                    hmStart: 325,
+                    hmEnd: 325,
+                    gps: "yes",
+                    blade: "down",
+                    status: TimesheetStatus.Working,
                 });
             }
         };
@@ -77,8 +79,8 @@ const TimesheetPage = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
                 Timesheet
             </h2>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-3 space-y-2 md:space-y-0">
-                <div>
+            {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-3 space-y-2 md:space-y-0"> */}
+            {/* <div>
                     <select
                         value={selectedEquipment}
                         onChange={(e) => setSelectedEquipment(e.target.value)}
@@ -90,66 +92,44 @@ const TimesheetPage = () => {
                             </option>
                         ))}
                     </select>
-                </div>
-                <p className="text-lg md:text-xl font-bold text-gray-600">
-                    {new Date()
-                        .toLocaleDateString("id-ID", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                        })
-                        .replace(/\//g, "-")}
-                </p>
-            </div>
+                </div> */}
+            <p className="text-right text-lg md:text-xl font-bold text-gray-600 mb-2">
+                {new Date()
+                    .toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                    })
+                    .replace(/\//g, "-")}
+            </p>
+            {/* </div> */}
             <div className="bg-white rounded-lg shadow overflow-x-auto">
                 <table className="w-full border-collapse min-w-max">
                     <thead>
-                        <tr className="bg-gray-800 text-white">
-                            <th className="border p-2 rounded-tl-lg">
-                                {selectedEquipment}
-                            </th>
-                            <th className="border p-2" colSpan={2}>
-                                TIME MACHINE
-                            </th>
-                            <th
-                                className="border p-2 rounded-tr-lg"
-                                colSpan={6}
-                            >
-                                TIME OPERATOR
-                            </th>
-                        </tr>
-                        <tr className="bg-gray-700 text-white">
-                            <th className="border p-2">Activity</th>
-                            <th className="border p-2">Start</th>
-                            <th className="border p-2">End</th>
-                            <th className="border p-2">Start</th>
-                            <th className="border p-2">End</th>
-                            <th className="border p-2">Hours</th>
-                            <th className="border p-2">Production</th>
-                            <th className="border p-2">Speed</th>
-                            <th className="border p-2">Quality</th>
+                        <tr className="bg-gray-300">
+                            <th className="border p-2">Contractor</th>
+                            <th className="border p-2">Eq Id</th>
+                            <th className="border p-2">Date</th>
+                            <th className="border p-2">HM Start</th>
+                            <th className="border p-2">HM End</th>
+                            <th className="border p-2">GPS</th>
+                            <th className="border p-2">Blade</th>
+                            <th className="border p-2">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.map((row, index) => (
-                            <tr key={index} className="hover:bg-gray-100">
-                                <td className="border p-2">{row.activity}</td>
+                            <tr key={index} className={`text-center ${index % 2 === 0 ? "bg-white" : "bg-slate-50"}`}>
+                                <td className="border p-2">{row.contractor}</td>
+                                <td className="border p-2">{row.eqId}</td>
                                 <td className="border p-2">
-                                    {row.timeMachineStart}
+                                    {row.date.toLocaleDateString("id-ID")}
                                 </td>
-                                <td className="border p-2">
-                                    {row.timeMachineEnd}
-                                </td>
-                                <td className="border p-2">
-                                    {row.timeOperatorStart}
-                                </td>
-                                <td className="border p-2">
-                                    {row.timeOperatorEnd}
-                                </td>
-                                <td className="border p-2">{row.hours}</td>
-                                <td className="border p-2">{row.production}</td>
-                                <td className="border p-2">{row.speed}</td>
-                                <td className="border p-2">{row.quality}</td>
+                                <td className="border p-2">{row.hmStart}</td>
+                                <td className="border p-2">{row.hmEnd}</td>
+                                <td className="border p-2">{row.gps}</td>
+                                <td className="border p-2">{row.blade}</td>
+                                <td className="border p-2">{row.status}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -165,78 +145,98 @@ const TimesheetPage = () => {
             </div>
             {isDialogOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                    <form onSubmit={handleAddEntry} className="bg-white p-6 rounded-lg w-full max-w-md">
                         <h3 className="text-lg font-semibold mb-4">
                             Add New Timesheet Entry
                         </h3>
                         <div className="space-y-4">
                             <input
                                 className="w-full p-2 border rounded"
-                                name="activity"
-                                value={newEntry.activity}
+                                name="contractor"
+                                value={newEntry.contractor}
                                 onChange={handleInputChange}
-                                placeholder="Activity"
+                                placeholder="Contractor"
+                                required
                             />
                             <input
                                 className="w-full p-2 border rounded"
-                                name="timeMachineStart"
+                                name="eqId"
+                                value={newEntry.eqId}
+                                onChange={handleInputChange}
+                                placeholder="Equipment Id"
+                                required
+                            />
+                            <input
+                                className="w-full p-2 border rounded"
+                                name="date"
+                                type="date"
+                                value={
+                                    newEntry.date.toISOString().split("T")[0]
+                                }
+                                onChange={handleInputChange}
+                                required
+                            />
+                            <input
+                                className="w-full p-2 border rounded"
+                                name="hmStart"
                                 type="number"
-                                value={newEntry.timeMachineStart}
+                                value={newEntry.hmStart}
                                 onChange={handleInputChange}
-                                placeholder="Time Machine Start"
+                                placeholder="HM Start"
+                                required
                             />
                             <input
                                 className="w-full p-2 border rounded"
-                                name="timeMachineEnd"
+                                name="hmEnd"
                                 type="number"
-                                value={newEntry.timeMachineEnd}
+                                value={newEntry.hmEnd}
                                 onChange={handleInputChange}
-                                placeholder="Time Machine End"
+                                placeholder="HM End"
+                                required
                             />
-                            <input
+                            <select
                                 className="w-full p-2 border rounded"
-                                name="timeOperatorStart"
-                                value={newEntry.timeOperatorStart}
+                                name="gps"
+                                value={newEntry.gps}
                                 onChange={handleInputChange}
-                                placeholder="Time Operator Start"
-                            />
-                            <input
+                                required
+                            >
+                                <option value="">Select GPS</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                            <select
                                 className="w-full p-2 border rounded"
-                                name="timeOperatorEnd"
-                                value={newEntry.timeOperatorEnd}
+                                name="blade"
+                                value={newEntry.blade}
                                 onChange={handleInputChange}
-                                placeholder="Time Operator End"
-                            />
-                            <input
+                                required
+                            >
+                                <option value="">Select Blade</option>
+                                <option value="Up">Up</option>
+                                <option value="Down">Down</option>
+                            </select>
+                            <select
                                 className="w-full p-2 border rounded"
-                                name="hours"
-                                value={newEntry.hours}
+                                name="status"
+                                value={newEntry.status}
                                 onChange={handleInputChange}
-                                placeholder="Hours"
-                            />
-                            <input
-                                className="w-full p-2 border rounded"
-                                name="production"
-                                type="number"
-                                value={newEntry.production}
-                                onChange={handleInputChange}
-                                placeholder="Production"
-                            />
-                            <input
-                                className="w-full p-2 border rounded"
-                                name="speed"
-                                type="number"
-                                value={newEntry.speed}
-                                onChange={handleInputChange}
-                                placeholder="Speed"
-                            />
-                            <input
-                                className="w-full p-2 border rounded"
-                                name="quality"
-                                value={newEntry.quality}
-                                onChange={handleInputChange}
-                                placeholder="Quality"
-                            />
+                                required
+                            >
+                                <option value="">Select Status</option>
+                                <option value={TimesheetStatus.Working}>
+                                    {TimesheetStatus.Working}
+                                </option>
+                                <option value={TimesheetStatus.Moving}>
+                                    {TimesheetStatus.Moving}
+                                </option>
+                                <option value={TimesheetStatus.Idle}>
+                                    {TimesheetStatus.Idle}
+                                </option>
+                                <option value={TimesheetStatus.Stop}>
+                                    {TimesheetStatus.Stop}
+                                </option>
+                            </select>
                         </div>
                         <div className="mt-4 flex justify-end space-x-2">
                             <button
@@ -246,13 +246,13 @@ const TimesheetPage = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleAddEntry}
+                                type="submit"
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                             >
                                 Add Entry
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             )}
         </div>

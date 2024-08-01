@@ -20,6 +20,7 @@ import GroupsPage from "./presentation/pages/groups";
 import UsersManagementPage from "./presentation/pages/Users";
 import { UsersPermissions } from "./domain/entities/Types";
 import Unauthorized from "./presentation/pages/Unauthorized";
+import ProjectManager from "./presentation/pages/ProjectManager";
 
 interface ProtectedRouteProps {
     children: React.ReactElement;
@@ -86,7 +87,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
                 )}
                 <div className="flex-1 overflow-auto">
                     <div
-                        className={`p-10 ${
+                        className={`p-4 md:p-10 ${
                             user ? "md:ml-64" : ""
                         } transition-all duration-300`}
                     >
@@ -267,6 +268,14 @@ function App() {
                                     ]}
                                 >
                                     <GroupsPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/projects"
+                            element={
+                                <ProtectedRoute>
+                                    <ProjectManager />
                                 </ProtectedRoute>
                             }
                         />

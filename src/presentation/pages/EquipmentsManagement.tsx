@@ -6,6 +6,8 @@ import {
     Trash2,
     ChevronLeft,
     Filter,
+    FolderArchive,
+    File,
 } from "lucide-react";
 import { EquipmentStatus, IEquipment, Role } from "../../domain/entities/Types";
 import { useAuth } from "../../application/auth/AuthContext";
@@ -167,26 +169,26 @@ const EquipmentManagementPage = () => {
             </h1>
 
             {isAdmin && (
-                <div className="mb-6 font-semibold">
+                <div className="flex items-center gap-3 mb-6 font-semibold">
                     <button
                         onClick={handleShowManagement}
-                        className={`w-1/2 md:w-32 py-2 rounded-l-full ${
+                        className={`flex items-center gap-3 px-4 py-2 rounded-md ${
                             showLogs
                                 ? "bg-gray-200 hover:bg-gray-300"
                                 : "bg-blue-500 text-white"
                         }`}
                     >
-                        Management
+                        <FolderArchive size={20} /> Management
                     </button>
                     <button
                         onClick={handleShowLogs}
-                        className={`w-1/2 md:w-32 py-2 rounded-r-full ${
+                        className={`flex items-center gap-3 px-4 py-2 rounded-md ${
                             showLogs
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-200 hover:bg-gray-300"
                         }`}
                     >
-                        Logs
+                        <File size={20} /> Logs
                     </button>
                 </div>
             )}

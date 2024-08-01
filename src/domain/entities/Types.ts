@@ -40,15 +40,14 @@ export interface IMaintenance {
 export interface ITimesheet {
     id?: number;
     uid: string;
-    activity: string;
-    timeMachineStart: number;
-    timeMachineEnd: number;
-    timeOperatorStart: string;
-    timeOperatorEnd: string;
-    hours: string;
-    production: number;
-    speed: number;
-    quality: string;
+    contractor: string;
+    eqId: string;
+    date: Date;
+    hmStart: number;
+    hmEnd: number;
+    gps: string;
+    blade: string;
+    status: TimesheetStatus;
 }
 
 export interface IRole {
@@ -107,6 +106,13 @@ export enum EquipmentStatus {
     normal = "Normal",
     under = "Under Maintenance",
     need = "Need Maintenance",
+}
+
+export enum TimesheetStatus {
+    Working = "Working",
+    Moving = "Moving",
+    Idle = "Idle",
+    Stop = "Stop",
 }
 
 export enum UsersPermissions {

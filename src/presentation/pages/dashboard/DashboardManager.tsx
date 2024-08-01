@@ -45,6 +45,88 @@ const DashboardManager = () => {
         </div>
     );
 
+    const progressBar = (title: string, image: string) => (
+        <div className="mt-6 p-4 bg-white rounded-lg shadow-md">
+                            <h3 className="text-2xl font-semibold text-gray-800 mb-5">
+                                {title}
+                            </h3>
+                            <div className="flex items-center gap-3 mb-6">
+                                <img
+                                    src={image}
+                                    alt="image"
+                                    className="w-20 h-auto mb-2"
+                                />
+                                <div className="w-full">
+                                    <div className="mb-3">
+                                        {renderBar(
+                                            new Array(totalDistance).fill(1),
+                                            "P"
+                                        )}
+                                    </div>
+                                    <div>{renderBar(rSegments, "R")}</div>
+                                </div>
+                            </div>
+
+                            <div className="h-64 mb-4">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={chartData}
+                                        layout="vertical"
+                                        stackOffset="expand"
+                                        margin={{
+                                            top: 10,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <XAxis type="number" hide />
+                                        <YAxis dataKey="name" type="category" />
+                                        <Tooltip
+                                            formatter={(value, name) => [
+                                                `${value}%`,
+                                                name && typeof name === "string"
+                                                    ? name
+                                                          .charAt(0)
+                                                          .toUpperCase() +
+                                                      name.slice(1)
+                                                    : "",
+                                            ]}
+                                            labelFormatter={(label) =>
+                                                `${label} Status`
+                                            }
+                                        />
+                                        <Legend />
+                                        <Bar
+                                            dataKey="working"
+                                            stackId="a"
+                                            fill="#10B981"
+                                            name="Working"
+                                        />
+                                        <Bar
+                                            dataKey="moving"
+                                            stackId="a"
+                                            fill="#F59E0B"
+                                            name="Moving"
+                                        />
+                                        <Bar
+                                            dataKey="idle"
+                                            stackId="a"
+                                            fill="#FBBF24"
+                                            name="Idle"
+                                        />
+                                        <Bar
+                                            dataKey="stop"
+                                            stackId="a"
+                                            fill="#EF4444"
+                                            name="Stop"
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+    )
+
     const renderContent = () => {
         switch (activeTab) {
             case "overview":
@@ -106,164 +188,9 @@ const DashboardManager = () => {
                             </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-white rounded-lg shadow-md">
-                            <h3 className="text-2xl font-semibold text-gray-800 mb-5">
-                                Grader Progress
-                            </h3>
-                            <div className="flex items-center gap-3 mb-6">
-                                <img
-                                    src="/grader.png"
-                                    alt="grader image"
-                                    className="w-20 h-auto mb-2"
-                                />
-                                <div className="w-full">
-                                    <div className="mb-3">
-                                        {renderBar(
-                                            new Array(totalDistance).fill(1),
-                                            "P"
-                                        )}
-                                    </div>
-                                    <div>{renderBar(rSegments, "R")}</div>
-                                </div>
-                            </div>
-
-                            <div className="h-64 mb-4">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        data={chartData}
-                                        layout="vertical"
-                                        stackOffset="expand"
-                                        margin={{
-                                            top: 10,
-                                            right: 30,
-                                            left: 20,
-                                            bottom: 5,
-                                        }}
-                                    >
-                                        <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" />
-                                        <Tooltip
-                                            formatter={(value, name) => [
-                                                `${value}%`,
-                                                name && typeof name === "string"
-                                                    ? name
-                                                          .charAt(0)
-                                                          .toUpperCase() +
-                                                      name.slice(1)
-                                                    : "",
-                                            ]}
-                                            labelFormatter={(label) =>
-                                                `${label} Status`
-                                            }
-                                        />
-                                        <Legend />
-                                        <Bar
-                                            dataKey="working"
-                                            stackId="a"
-                                            fill="#10B981"
-                                            name="Working"
-                                        />
-                                        <Bar
-                                            dataKey="moving"
-                                            stackId="a"
-                                            fill="#F59E0B"
-                                            name="Moving"
-                                        />
-                                        <Bar
-                                            dataKey="idle"
-                                            stackId="a"
-                                            fill="#FBBF24"
-                                            name="Idle"
-                                        />
-                                        <Bar
-                                            dataKey="stop"
-                                            stackId="a"
-                                            fill="#EF4444"
-                                            name="Stop"
-                                        />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                        
-                        <div className="mt-6 p-4 bg-white rounded-lg shadow-md">
-                            <h3 className="text-2xl font-semibold text-gray-800 mb-5">
-                                Compactor Progress
-                            </h3>
-                            <div className="flex items-center gap-3 mb-6">
-                                <img
-                                    src="/compactor.png"
-                                    alt="compactor image"
-                                    className="w-20 h-auto mb-2"
-                                />
-                                <div className="w-full">
-                                    <div className="mb-3">
-                                        {renderBar(
-                                            new Array(totalDistance).fill(1),
-                                            "P"
-                                        )}
-                                    </div>
-                                    <div>{renderBar(rSegments, "R")}</div>
-                                </div>
-                            </div>
-
-                            <div className="h-64 mb-4">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        data={chartData}
-                                        layout="vertical"
-                                        stackOffset="expand"
-                                        margin={{
-                                            top: 10,
-                                            right: 30,
-                                            left: 20,
-                                            bottom: 5,
-                                        }}
-                                    >
-                                        <XAxis type="number" hide />
-                                        <YAxis dataKey="name" type="category" />
-                                        <Tooltip
-                                            formatter={(value, name) => [
-                                                `${value}%`,
-                                                name && typeof name === "string"
-                                                    ? name
-                                                          .charAt(0)
-                                                          .toUpperCase() +
-                                                      name.slice(1)
-                                                    : "",
-                                            ]}
-                                            labelFormatter={(label) =>
-                                                `${label} Status`
-                                            }
-                                        />
-                                        <Legend />
-                                        <Bar
-                                            dataKey="working"
-                                            stackId="a"
-                                            fill="#10B981"
-                                            name="Working"
-                                        />
-                                        <Bar
-                                            dataKey="moving"
-                                            stackId="a"
-                                            fill="#F59E0B"
-                                            name="Moving"
-                                        />
-                                        <Bar
-                                            dataKey="idle"
-                                            stackId="a"
-                                            fill="#FBBF24"
-                                            name="Idle"
-                                        />
-                                        <Bar
-                                            dataKey="stop"
-                                            stackId="a"
-                                            fill="#EF4444"
-                                            name="Stop"
-                                        />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+                        <div>
+                            {progressBar("Grader Progress", "/grader.png")}
+                            {progressBar("Compactor Progress", "/compactor.png")}
                         </div>
                     </div>
                 );
@@ -304,7 +231,7 @@ const DashboardManager = () => {
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-semibold mb-4">
-                    Machinery Usage vs Maintenance
+                    Equipment Usage vs Maintenance
                 </h2>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={data}>
@@ -362,7 +289,7 @@ const StatItem = ({ label, value, color }: any) => (
 const TabButton = ({ children, active, onClick }: any) => (
     <button
         className={`px-4 py-2 rounded-md ${
-            active ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+            active ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-700"
         }`}
         onClick={onClick}
     >
