@@ -21,6 +21,7 @@ import UsersManagementPage from "./presentation/pages/Users";
 import { UsersPermissions } from "./domain/entities/Types";
 import Unauthorized from "./presentation/pages/Unauthorized";
 import ProjectManager from "./presentation/pages/ProjectManager";
+import MapPage from "./presentation/pages/MapPage";
 
 interface ProtectedRouteProps {
     children: React.ReactElement;
@@ -276,6 +277,14 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <ProjectManager />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/map"
+                            element={
+                                <ProtectedRoute>
+                                    <MapPage />
                                 </ProtectedRoute>
                             }
                         />

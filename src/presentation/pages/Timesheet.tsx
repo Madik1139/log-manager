@@ -74,6 +74,21 @@ const TimesheetPage = () => {
         initDB();
     }, []);
 
+    const getStatusColor = (status: string): string => {
+        switch (status) {
+            case TimesheetStatus.Working:
+                return "bg-green-100 text-green-800";
+            case TimesheetStatus.Moving:
+                return "bg-orange-100 text-orange-800";
+            case TimesheetStatus.Idle:
+                return "bg-yellow-100 text-yellow-800";
+            case TimesheetStatus.Stop:
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    };
+
     return (
         <div>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
@@ -129,7 +144,7 @@ const TimesheetPage = () => {
                                 <td className="border p-2">{row.hmEnd}</td>
                                 <td className="border p-2">{row.gps}</td>
                                 <td className="border p-2">{row.blade}</td>
-                                <td className="border p-2">{row.status}</td>
+                                <td className="border p-2"><span className={`px-2 py-1 rounded-full ${getStatusColor(row.status)}`}>{row.status}</span></td>
                             </tr>
                         ))}
                     </tbody>

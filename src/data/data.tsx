@@ -7,6 +7,7 @@ import {
     LayoutDashboard,
     LineChart,
     Map,
+    MapPinned,
     Search,
     Server,
     Settings,
@@ -16,6 +17,7 @@ import {
     Users,
     Wrench,
 } from "lucide-react";
+import { IProject } from "../domain/entities/Types";
 // import { generateUID } from "../application/utils/utils";
 
 export const menuItems = {
@@ -83,10 +85,10 @@ export const menuItems = {
             path: "/",
         },
         {
-            id: "Projects",
-            icon: Map,
-            label: "Projects",
-            path: "/projects",
+            id: "Map",
+            icon: MapPinned,
+            label: "Map",
+            path: "/map",
         },
         {
             id: "timeshhet",
@@ -101,16 +103,16 @@ export const menuItems = {
             path: "/equipments-management",
         },
         {
-            id: "maintenance",
-            icon: Wrench,
-            label: "Maintenance",
-            path: "/maintenance-management",
-        },
-        {
             id: "reportsAnalytics",
             icon: BarChart2,
             label: "Reports & Analytics",
             path: "/reports",
+        },
+        {
+            id: "maintenance",
+            icon: Wrench,
+            label: "Maintenance",
+            path: "/maintenance-management",
         },
         { id: "profile", icon: User, label: "My Profile", path: "/profile" },
     ],
@@ -324,6 +326,75 @@ export const dummyLogs = [
         user: "lara_croft",
         activity: "Backup created",
         details: "Created system backup: backup_20240717.zip",
+    },
+];
+
+export const dummyProjects: IProject[] = [
+    {
+        id: "proj001",
+        name: "RAPP Project List",
+        groupId: "group001",
+        createdAt: new Date("2023-01-15"),
+        createdBy: "user001",
+        geojson: {
+            type: "Point",
+            coordinates: [112.787, -7.2575],
+        },
+        contractorId: "cont001",
+        equipments: {
+            grader: "equip001",
+            compactor: "equip002",
+        },
+        timesheet: {
+            segment1: {
+                grader: "equip001",
+                compactor: "equip01",
+                segment: "segment 1",
+                status: "in progress",
+                contractorId: "Contractor A",
+                progress: 0.3,
+                result: 90,
+                timesheetDaily: [20, 30, 25, 25],
+                timesheetWeekly: [10, 30, 40, 20],
+                timesheetMonthly: [15, 35, 25, 25],
+            },
+            segment2: {
+                grader: "equip002",
+                compactor: "equip02",
+                segment: "segment 2",
+                status: "in progress",
+                contractorId: "Contractor B",
+                progress: 0.3,
+                result: 90,
+                timesheetDaily: [22, 28, 27, 23],
+                timesheetWeekly: [15, 25, 35, 25],
+                timesheetMonthly: [20, 30, 30, 20],
+            },
+            segment3: {
+                grader: "equip003",
+                compactor: "equip03",
+                segment: "segment 3",
+                status: "in progress",
+                contractorId: "Contractor C",
+                progress: 0.3,
+                result: 90,
+                timesheetDaily: [25, 20, 30, 25],
+                timesheetWeekly: [20, 20, 30, 30],
+                timesheetMonthly: [25, 25, 20, 30],
+            },
+            segment4: {
+                grader: "equip004",
+                compactor: "equip04",
+                segment: "segment 4",
+                status: "in progress",
+                contractorId: "Contractor D",
+                progress: 0.3,
+                result: 90,
+                timesheetDaily: [30, 20, 25, 25],
+                timesheetWeekly: [25, 25, 25, 25],
+                timesheetMonthly: [30, 20, 25, 25],
+            },
+        },
     },
 ];
 

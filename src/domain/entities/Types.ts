@@ -75,6 +75,36 @@ export interface IMCUData {
     data5: string;
 }
 
+export interface IProject {
+    id: string;
+    name: string;
+    groupId: string;
+    createdAt: Date;
+    createdBy: string;
+    geojson: IGeoJSON;
+    contractorId: string;
+    equipments: Record<string, string>;
+    timesheet: Record<string, ITimesheetEqu>;
+}
+
+export interface ITimesheetEqu {
+    grader: string;
+    compactor: string;
+    segment: string;
+    status: string;
+    contractorId: string;
+    progress: number;
+    result: number;
+    timesheetDaily: number[];
+    timesheetWeekly: number[];
+    timesheetMonthly: number[];
+}
+
+export interface IGeoJSON {
+    type: string;
+    coordinates: [number, number];
+}
+
 export enum Role {
     Admin = "admin",
     Manager = "manager",
